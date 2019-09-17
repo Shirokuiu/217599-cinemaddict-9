@@ -1,6 +1,6 @@
 import StatisticCanvas from "../components/statistic-canvas";
 
-import {render, unrender} from "../utils";
+import {calculateGenres, render, unrender} from "../utils";
 
 import Chart from "chart.js";
 import ChartPlugin from "chartjs-plugin-datalabels";
@@ -28,7 +28,7 @@ export default class StatisticCanvasController {
 
   _renderStatisticCanvas(cotainer, filmsData) {
     this._statisticCanvas = new StatisticCanvas();
-    const genres = this._calculateGenres(filmsData);
+    const genres = calculateGenres(filmsData);
 
     this._chart = new Chart(this._statisticCanvas.getElement().querySelector(`.statistic__chart`), {
       plugins: [ChartPlugin],
@@ -81,20 +81,5 @@ export default class StatisticCanvasController {
     });
 
     render(cotainer, this._statisticCanvas.getElement());
-  }
-
-  _calculateGenres(filmsWatched) {
-    return filmsWatched.map((film) => film.filmInfo.genre)
-      .reduce((first, second) => first.concat(second))
-      .map((name) => {
-        return {
-          count: 1,
-          name
-        };
-      })
-      .reduce((first, second) => {
-        first[second.name] = (first[second.name] || 0) + second.count;
-        return first;
-      }, {});
   }
 }

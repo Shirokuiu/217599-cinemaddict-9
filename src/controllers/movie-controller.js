@@ -2,7 +2,7 @@ import FilmPopupController from "./film-popup-controller";
 
 import Film from "../components/film";
 
-import {render} from "../utils";
+import {getTimeFromMinutes, render} from "../utils";
 
 export default class MovieController {
   constructor(container, filmData, authorization, endPoint, commentEmotions) {
@@ -12,11 +12,11 @@ export default class MovieController {
     this._titleLength = 139;
     this._filmData = filmData;
     this._container = container;
-    this._film = new Film(this._filmData, this._titleLength, this._getTimeFromMinutes(this._filmData.filmInfo.runtime));
+    this._film = new Film(this._filmData, this._titleLength, getTimeFromMinutes(this._filmData.filmInfo.runtime));
     this._filmPopupController =
       new FilmPopupController(
           this._commentEmotions,
-          this._getTimeFromMinutes(this._filmData.filmInfo.runtime),
+          getTimeFromMinutes(this._filmData.filmInfo.runtime),
           this._authorization,
           this._endPoint
       );
@@ -48,12 +48,6 @@ export default class MovieController {
       .contains(`film-card__controls-item--active`);
     entry.favorite = this._film.getElement().querySelector(`.film-card__controls-item--favorite`).classList
       .contains(`film-card__controls-item--active`);
-  }
-
-  _getTimeFromMinutes(mins) {
-    let hours = Math.trunc(mins / 60);
-    let minutes = mins % 60;
-    return `${hours}h ${minutes}m`;
   }
 
   _makeEntry(filmData) {

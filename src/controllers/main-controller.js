@@ -19,6 +19,7 @@ export default class MainController {
     this._endPoint = endPoint;
     this._commentEmotions = commentEmotions;
     this._onDataAppChange = onDataAppChange;
+
     this._container = document.querySelector(`.main`);
     this._filmsContent = new FilmsContent();
     this._sort = new Sort();
@@ -55,16 +56,8 @@ export default class MainController {
     }
     this._menu.getElement().classList.remove(`visually-hidden`);
     this._sort.getElement().classList.remove(`visually-hidden`);
-
-    [...this._menu.getElement().querySelectorAll(`.main-navigation__item`)]
-      .forEach((item) => item.classList.remove(`main-navigation__item--active`));
-    this._menu.getElement().querySelectorAll(`.main-navigation__item`)[0]
-      .classList.add(`main-navigation__item--active`);
-
-    [...this._sort.getElement().querySelectorAll(`.sort__button`)]
-      .forEach((item) => item.classList.remove(`sort__button--active`));
-    this._sort.getElement().querySelectorAll(`.sort__button`)[0].classList.add(`sort__button--active`);
-
+    this._resetButtons(this._menu, `main-navigation__item`, true);
+    this._resetButtons(this._sort, `sort__button`, true);
     this._searchResultController.hide();
     this._filmsController.show(filmsFound);
     this._filmsTopRatedController.show(filmsFound);
@@ -92,13 +85,8 @@ export default class MainController {
       }
 
       if (!(evt.target.classList.contains(`main-navigation__item--active`))) {
-        [...this._menu.getElement().querySelectorAll(`.main-navigation__item`)]
-          .forEach((item) => {
-            item.classList.remove(`main-navigation__item--active`);
-          });
-        [...this._sort.getElement().querySelectorAll(`.sort__button`)]
-          .forEach((item) => item.classList.remove(`sort__button--active`));
-        this._sort.getElement().querySelectorAll(`.sort__button`)[0].classList.add(`sort__button--active`);
+        this._resetButtons(this._menu, `main-navigation__item`);
+        this._resetButtons(this._sort, `sort__button`, true);
         evt.target.classList.add(`main-navigation__item--active`);
 
         switch (evt.target.href.split(`#`)[1]) {
@@ -152,8 +140,7 @@ export default class MainController {
         .href.split(`#`)[1];
 
       if (!(evt.target.classList.contains(`sort__button--active`))) {
-        [...this._sort.getElement().querySelectorAll(`.sort__button`)]
-          .forEach((item) => item.classList.remove(`sort__button--active`));
+        this._resetButtons(this._sort, `sort__button`);
         evt.target.classList.add(`sort__button--active`);
 
         switch (menuMod) {
@@ -225,5 +212,15 @@ export default class MainController {
         break;
     }
     return result;
+  }
+
+  _resetButtons(element, className, defaultState = false) {
+    [...element.getElement().querySelectorAll(`.${className}`)]
+      .forEach((item) => item.classList.remove(`${className}--active`));
+
+    if (defaultState) {
+      element.getElement().querySelectorAll(`.${className}`)[0]
+        .classList.add(`${className}--active`);
+    }
   }
 }

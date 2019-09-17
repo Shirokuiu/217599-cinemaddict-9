@@ -1,6 +1,6 @@
 import StatisticInfo from "../components/statistic-info";
 
-import {render, unrender} from "../utils";
+import {calculateGenres, getTimeFromMinutes, render, unrender} from "../utils";
 
 export default class StatisticInfoController {
   constructor(container) {
@@ -42,24 +42,18 @@ export default class StatisticInfoController {
     return {
       watched: watched.length,
       totalDuration: {
-        hours: parseInt(this._getTimeFromMinutes(duration).split(` `)[0], 10),
-        minutes: parseInt(this._getTimeFromMinutes(duration).split(` `)[1], 10),
+        hours: parseInt(getTimeFromMinutes(duration).split(` `)[0], 10),
+        minutes: parseInt(getTimeFromMinutes(duration).split(` `)[1], 10),
       },
       topGenre,
     };
-  }
-
-  _getTimeFromMinutes(mins) {
-    let hours = Math.trunc(mins / 60);
-    let minutes = mins % 60;
-    return `${hours}h ${minutes}m`;
   }
 
   _getTopGenre(filmsWatched) {
     let maxVal;
     let maxKey;
 
-    for (let [key, value] of Object.entries(this._calculateGenres(filmsWatched))) {
+    for (let [key, value] of Object.entries(calculateGenres(filmsWatched))) {
       if (!maxVal || value > maxVal) {
         maxVal = value;
         maxKey = key;
@@ -67,20 +61,5 @@ export default class StatisticInfoController {
     }
 
     return maxKey;
-  }
-
-  _calculateGenres(filmsWatched) {
-    return filmsWatched.map((film) => film.filmInfo.genre)
-      .reduce((first, second) => first.concat(second))
-      .map((name) => {
-        return {
-          count: 1,
-          name
-        };
-      })
-      .reduce((first, second) => {
-        first[second.name] = (first[second.name] || 0) + second.count;
-        return first;
-      }, {});
   }
 }

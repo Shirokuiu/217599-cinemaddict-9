@@ -1,6 +1,6 @@
 import StatisticUserRate from "../components/statistic-user-rate";
 
-import {Position, render, unrender} from "../utils";
+import {getUserRate, Position, render, unrender} from "../utils";
 
 export default class StatisticUserRateController {
   constructor(container) {
@@ -30,26 +30,8 @@ export default class StatisticUserRateController {
   }
 
   _renderStatisticUserRate(container, filmsData) {
-    this._statisticUserRate = new StatisticUserRate(this._getUserRate(filmsData));
+    this._statisticUserRate = new StatisticUserRate(getUserRate(filmsData));
 
     render(container, this._statisticUserRate.getElement(), Position.AFTERBEGIN);
-  }
-
-  _getUserRate(filmsData) {
-    const watchedList = filmsData.filter(({userDetails}) => userDetails.alreadyWatched).length;
-
-    if (watchedList <= 10) {
-      return `novice`;
-    }
-
-    if (watchedList > 10 && watchedList < 20) {
-      return `fan`;
-    }
-
-    if (watchedList > 19) {
-      return `movie buff`;
-    }
-
-    return undefined;
   }
 }

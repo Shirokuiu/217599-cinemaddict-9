@@ -2,17 +2,15 @@ import HeaderController from "./header-controller";
 import MainController from "./main-controller";
 import FooterController from "./footer-controller";
 
-import API from "../api/api";
+import {AppSettings} from "../utils";
 
-const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
-const END_POINT = `https://htmlacademy-es-9.appspot.com/cinemaddict/`;
-const COMMENT_EMOTIONS = [`smile`, `sleeping`, `puke`, `angry`];
+import API from "../api/api";
 
 export default class AppController {
   constructor() {
-    this._api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
+    this._api = new API({endPoint: AppSettings.END_POINT, authorization: AppSettings.AUTHORIZATION});
     this._headerController = new HeaderController(this._onSearchDataChange.bind(this));
-    this._mainController = new MainController(AUTHORIZATION, END_POINT, COMMENT_EMOTIONS);
+    this._mainController = new MainController(AppSettings.AUTHORIZATION, AppSettings.END_POINT, AppSettings.COMMENT_EMOTIONS);
     this._footerController = new FooterController();
   }
 

@@ -1,13 +1,13 @@
 import StatisticFiltersController from "./statistic-filters-controller";
 import StatisticInfoController from "./statistic-info-controller";
 import StatisticUserRateController from "./statistic-user-rank-controller";
+import StatisticCanvasController from "./statistic-canvas-controller";
 
 import StatisticContainer from "../components/statistic-container";
 
 import {render, unrender} from "../utils";
 
 import moment from "moment";
-import StatisticCanvasController from "./statistic-canvas-controller";
 
 export default class StatisticController {
   constructor(container) {

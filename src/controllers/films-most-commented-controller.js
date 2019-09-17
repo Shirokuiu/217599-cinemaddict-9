@@ -18,7 +18,7 @@ export default class FilmsMostCommentedController {
     this._filmListCommented.removeElement();
 
     render(this._container, this._filmListCommented.getElement());
-    this._setTopRated(filmsData);
+    this._setTopCommented(filmsData);
   }
 
   hide() {
@@ -26,7 +26,7 @@ export default class FilmsMostCommentedController {
     this._filmListCommented.removeElement();
   }
 
-  _setTopRated(filmsData) {
+  _setTopCommented(filmsData) {
     filmsData.slice().sort((a, b) => b.comments.length - a.comments.length).slice(0, 2)
       .forEach((film) => this._renderFilm(this._filmListCommented.getElement()
         .querySelector(`.films-list__container`), film));
