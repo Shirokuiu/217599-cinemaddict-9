@@ -1,21 +1,38 @@
+import FilmPopupController from "./film-popup-controller";
+
 import Film from "../components/film";
 
 import {render} from "../utils";
 
 export default class MovieController {
-  constructor(container, filmData, onDataChangeFilms) {
+  constructor(container, filmData, authorization, endPoint, commentEmotions) {
+    this._authorization = authorization;
+    this._endPoint = endPoint;
+    this._commentEmotions = commentEmotions;
     this._titleLength = 139;
     this._filmData = filmData;
-    this._onDataChangeFilms = onDataChangeFilms;
     this._container = container;
-    this._film = new Film(this._filmData, this._titleLength);
+    this._film = new Film(this._filmData, this._titleLength, this._getTimeFromMinutes(this._filmData.filmInfo.runtime));
+    this._filmPopupController =
+      new FilmPopupController(
+          this._commentEmotions,
+          this._getTimeFromMinutes(this._filmData.filmInfo.runtime),
+          this._authorization,
+          this._endPoint
+      );
   }
 
   init() {
-    render(this._container, this._film.getElement());
-
     this._film.getElement().querySelector(`.film-card__controls`)
       .addEventListener(`click`, this._onFilmCardControlsClick.bind(this));
+
+    [...this._film.getElement().querySelectorAll(`.film-card__poster, .film-card__title, .film-card__comments`)]
+      .forEach((item) => item.addEventListener(`click`, () => {
+        document.body.classList.add(`hide-overflow`);
+        this._filmPopupController.show(this._filmData);
+      }));
+
+    render(this._container, this._film.getElement());
   }
 
   _onFilmCardControlsClick(evt) {
@@ -31,8 +48,12 @@ export default class MovieController {
       .contains(`film-card__controls-item--active`);
     entry.favorite = this._film.getElement().querySelector(`.film-card__controls-item--favorite`).classList
       .contains(`film-card__controls-item--active`);
+  }
 
-    this._onDataChangeFilms(entry, this._filmData.id);
+  _getTimeFromMinutes(mins) {
+    let hours = Math.trunc(mins / 60);
+    let minutes = mins % 60;
+    return `${hours}h ${minutes}m`;
   }
 
   _makeEntry(filmData) {

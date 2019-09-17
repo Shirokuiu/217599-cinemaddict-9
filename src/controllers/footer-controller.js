@@ -6,11 +6,24 @@ export default class FooterController {
   constructor(filmsData) {
     this._filmsData = filmsData;
     this._container = document.querySelector(`.footer`);
-    this._footer = new Footer(this._getTotalFilms(this._filmsData));
   }
 
-  init() {
-    render(this._container, this._footer.getElement());
+  show(filmsData) {
+    if (filmsData !== this._filmsData) {
+      this._setFilmsData(filmsData);
+    }
+  }
+
+  _renderFooter(container, filmsData) {
+    const footer = new Footer(this._getTotalFilms(filmsData));
+
+    render(container, footer.getElement());
+  }
+
+  _setFilmsData(filmsData) {
+    this._filmsData = filmsData;
+
+    this._renderFooter(this._container, filmsData);
   }
 
   _getTotalFilms(filmsData) {

@@ -2,33 +2,29 @@ import HeaderController from "./header-controller";
 import MainController from "./main-controller";
 import FooterController from "./footer-controller";
 
-import {getFilmMock} from "../data";
+import API from "../api/api";
+
+const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
+const END_POINT = `https://htmlacademy-es-9.appspot.com/cinemaddict/`;
+const COMMENT_EMOTIONS = [`smile`, `sleeping`, `puke`, `angry`];
 
 export default class AppController {
   constructor() {
-    this._filmsData = this._makeData();
-    this._headerController = new HeaderController(this._filmsData);
-    this._onDataChangeApp = this._onDataChangeApp.bind(this);
-    this._mainController = new MainController(this._filmsData, this._onDataChangeApp);
-    this._footerController = new FooterController(this._filmsData);
+    this._api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
+    this._headerController = new HeaderController(this._onSearchDataChange.bind(this));
+    this._mainController = new MainController(AUTHORIZATION, END_POINT, COMMENT_EMOTIONS);
+    this._footerController = new FooterController();
   }
 
   init() {
-    this._headerController.init();
-    this._mainController.init();
-    this._footerController.init();
-  }
-
-  _makeData() {
-    const newData = new Array(15).fill().map(getFilmMock);
-
-    newData.forEach((it, idx) => {
-      it.id = idx;
+    this._api.getFilms().then((films) => {
+      this._headerController.show(films);
+      this._mainController.show(films);
+      this._footerController.show(films);
     });
-    return newData;
   }
 
-  _onDataChangeApp() {
-    this._headerController.updateUserData();
+  _onSearchDataChange(filmsFound, mode) {
+    this._mainController.searchMode(filmsFound, mode);
   }
 }

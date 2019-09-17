@@ -1,40 +1,211 @@
+import FilmsTopRatedController from "./films-top-rated-controller";
+import FilmsMostCommentedController from "./films-most-commented-controller";
+import StatisticController from "./statistic-controller";
+import SearchResultController from "./search-result-controller";
+import FilmsController from "./films-controller";
+
 import Menu from "../components/menu";
 import Sort from "../components/sort";
 import FilmsContent from "../components/films-content";
 
-import FilmsController from "./films-controller";
+import {Position, render} from "../utils";
 
-import {render} from "../utils";
+import moment from "moment";
 
 export default class MainController {
-  constructor(filmsData, onDataChangeApp) {
-    this._filmsData = filmsData;
-    this._onDataChangeApp = onDataChangeApp;
-    this._onDataChangeFilms = this._onDataChangeFilms.bind(this);
+  constructor(authorization, endPoint, commentEmotions, onDataAppChange) {
+    this._filmsData = [];
+    this._authorization = authorization;
+    this._endPoint = endPoint;
+    this._commentEmotions = commentEmotions;
+    this._onDataAppChange = onDataAppChange;
     this._container = document.querySelector(`.main`);
-    this._menu = new Menu(this._getMenuCount(this._filmsData));
-    this._sort = new Sort();
     this._filmsContent = new FilmsContent();
-    this._filmsController = new FilmsController(this._container, this._filmsData, this._onDataChangeFilms);
+    this._sort = new Sort();
+    this._menu = new Menu({});
+    this._searchResultController = new SearchResultController(this._container);
+    this._filmsController = new FilmsController(this._filmsContent.getElement());
+    this._filmsTopRatedController = new FilmsTopRatedController(this._filmsContent.getElement());
+    this._filmsMostCommentedController = new FilmsMostCommentedController(this._filmsContent.getElement());
+    this._statisticController = new StatisticController(this._container);
+
+    this._init();
   }
 
-  init() {
-    render(this._container, this._menu.getElement());
-    render(this._container, this._sort.getElement());
+  _init() {
     render(this._container, this._filmsContent.getElement());
-    this._filmsController.init();
   }
 
-  _onDataChangeFilms(newData, id) {
-    this._filmsData[id] = newData;
+  show(filmsData) {
+    if (filmsData !== this._filmsData) {
+      this._setFilmsData(filmsData);
+    }
+  }
 
-    this._onDataChangeApp();
+  searchMode(filmsFound, mode) {
+    if (mode) {
+      this._menu.getElement().classList.add(`visually-hidden`);
+      this._sort.getElement().classList.add(`visually-hidden`);
+      this._filmsController.show(filmsFound);
+      this._searchResultController.show(filmsFound);
+      this._statisticController.hide();
+      this._filmsTopRatedController.hide();
+      this._filmsMostCommentedController.hide();
+      return;
+    }
+    this._menu.getElement().classList.remove(`visually-hidden`);
+    this._sort.getElement().classList.remove(`visually-hidden`);
+
+    [...this._menu.getElement().querySelectorAll(`.main-navigation__item`)]
+      .forEach((item) => item.classList.remove(`main-navigation__item--active`));
+    this._menu.getElement().querySelectorAll(`.main-navigation__item`)[0]
+      .classList.add(`main-navigation__item--active`);
+
+    [...this._sort.getElement().querySelectorAll(`.sort__button`)]
+      .forEach((item) => item.classList.remove(`sort__button--active`));
+    this._sort.getElement().querySelectorAll(`.sort__button`)[0].classList.add(`sort__button--active`);
+
+    this._searchResultController.hide();
+    this._filmsController.show(filmsFound);
+    this._filmsTopRatedController.show(filmsFound);
+    this._filmsMostCommentedController.show(filmsFound);
+  }
+
+  _setFilmsData(filmsData) {
+    this._filmsData = filmsData;
+    this._renderMainController(this._container, filmsData);
+  }
+
+  _renderMainController(container, filmsData) {
+    this._sort = new Sort();
+    this._menu = new Menu(this._getMenuCount(filmsData));
+    this._filmsController = new FilmsController(this._filmsContent.getElement(), this._authorization, this._endPoint, this._commentEmotions);
+    this._filmsTopRatedController = new FilmsTopRatedController(this._filmsContent.getElement(), this._authorization, this._endPoint, this._commentEmotions);
+    this._filmsMostCommentedController = new FilmsMostCommentedController(this._filmsContent.getElement(), this._authorization, this._endPoint, this._commentEmotions);
+    this._statisticController = new StatisticController(this._container);
+
+    const onMenuClick = (evt) => {
+      evt.preventDefault();
+
+      if (evt.target.tagName.toLowerCase() !== `a`) {
+        return;
+      }
+
+      if (!(evt.target.classList.contains(`main-navigation__item--active`))) {
+        [...this._menu.getElement().querySelectorAll(`.main-navigation__item`)]
+          .forEach((item) => {
+            item.classList.remove(`main-navigation__item--active`);
+          });
+        [...this._sort.getElement().querySelectorAll(`.sort__button`)]
+          .forEach((item) => item.classList.remove(`sort__button--active`));
+        this._sort.getElement().querySelectorAll(`.sort__button`)[0].classList.add(`sort__button--active`);
+        evt.target.classList.add(`main-navigation__item--active`);
+
+        switch (evt.target.href.split(`#`)[1]) {
+          case `all`:
+            this._sort.getElement().classList.remove(`visually-hidden`);
+            this._filmsController.show(this._filmsData);
+            this._filmsTopRatedController.show(this._filmsData);
+            this._filmsMostCommentedController.show(this._filmsData);
+            this._statisticController.hide();
+            break;
+          case `watchlist`:
+            this._sort.getElement().classList.remove(`visually-hidden`);
+            this._filmsController.show(this._filmsData.slice().filter(({userDetails}) => userDetails.watchlist));
+            this._filmsTopRatedController.show(this._filmsData);
+            this._filmsMostCommentedController.show(this._filmsData);
+            this._statisticController.hide();
+            break;
+          case `history`:
+            this._sort.getElement().classList.remove(`visually-hidden`);
+            this._filmsController.show(this._filmsData.slice().filter(({userDetails}) => userDetails.alreadyWatched));
+            this._filmsTopRatedController.show(this._filmsData);
+            this._filmsMostCommentedController.show(this._filmsData);
+            this._statisticController.hide();
+            break;
+          case `favorites`:
+            this._sort.getElement().classList.remove(`visually-hidden`);
+            this._filmsController.show(this._filmsData.slice().filter(({userDetails}) => userDetails.favorite));
+            this._filmsTopRatedController.show(this._filmsData);
+            this._filmsMostCommentedController.show(this._filmsData);
+            this._statisticController.hide();
+            break;
+          case `stats`:
+            this._sort.getElement().classList.add(`visually-hidden`);
+            this._filmsController.hide();
+            this._filmsTopRatedController.hide(this._filmsData);
+            this._filmsMostCommentedController.hide(this._filmsData);
+            this._statisticController.show(this._filmsData);
+            break;
+        }
+      }
+    };
+
+    const onSortClick = (evt) => {
+      evt.preventDefault();
+
+      if (evt.target.tagName.toLowerCase() !== `a`) {
+        return;
+      }
+
+      const menuMod = this._menu.getElement().querySelector(`.main-navigation__item.main-navigation__item--active`)
+        .href.split(`#`)[1];
+
+      if (!(evt.target.classList.contains(`sort__button--active`))) {
+        [...this._sort.getElement().querySelectorAll(`.sort__button`)]
+          .forEach((item) => item.classList.remove(`sort__button--active`));
+        evt.target.classList.add(`sort__button--active`);
+
+        switch (menuMod) {
+          case `all`:
+            sortFilms(this._filmsData, evt.target.dataset.sort);
+            break;
+          case `watchlist`:
+            sortFilms(this._filmsData.slice()
+              .filter(({userDetails}) => userDetails.watchlist), evt.target.dataset.sort);
+            break;
+          case `history`:
+            sortFilms(this._filmsData.slice()
+              .filter(({userDetails}) => userDetails.alreadyWatched), evt.target.dataset.sort);
+            break;
+          case `favorites`:
+            sortFilms(this._filmsData.slice()
+              .filter(({userDetails}) => userDetails.favorite), evt.target.dataset.sort);
+            break;
+        }
+      }
+    };
+
+    const sortFilms = (filmData, sortStatus) => {
+      switch (sortStatus) {
+        case `default`:
+          this._filmsController.show(filmData);
+          break;
+        case `date`:
+          this._filmsController.show(filmData.slice()
+            .sort((a, b) => +moment(b.filmInfo.release.date) - +moment(a.filmInfo.release.date)));
+          break;
+        case `rate`:
+          this._filmsController.show(filmData.slice()
+            .sort((a, b) => (b.filmInfo.totalRating * 100) - (a.filmInfo.totalRating * 100)));
+          break;
+      }
+    };
+
+    this._menu.getElement().addEventListener(`click`, onMenuClick);
+    this._sort.getElement().addEventListener(`click`, onSortClick);
+
+    render(this._container, this._sort.getElement(), Position.AFTERBEGIN);
+    render(container, this._menu.getElement(), Position.AFTERBEGIN);
+    this._filmsController.show(this._filmsData);
+    this._filmsTopRatedController.show(this._filmsData);
+    this._filmsMostCommentedController.show(this._filmsData);
   }
 
   _getMenuCount(filmsData) {
     return {
       watchList: this._calculateMenuCount(filmsData, `watchList`),
-      history: this._calculateMenuCount(filmsData, `history`),
+      alreadyWatched: this._calculateMenuCount(filmsData, `history`),
       favorite: this._calculateMenuCount(filmsData, `favorite`),
     };
   }
@@ -44,13 +215,13 @@ export default class MainController {
 
     switch (mode) {
       case `watchList`:
-        result = filmsData.filter((film) => film.watchlist).length;
+        result = filmsData.filter(({userDetails}) => userDetails.watchlist).length;
         break;
       case `history`:
-        result = filmsData.filter((film) => film.watched).length;
+        result = filmsData.filter(({userDetails}) => userDetails.alreadyWatched).length;
         break;
       case `favorite`:
-        result = filmsData.filter((film) => film.favorite).length;
+        result = filmsData.filter(({userDetails}) => userDetails.favorite).length;
         break;
     }
     return result;

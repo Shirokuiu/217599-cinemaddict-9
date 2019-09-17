@@ -305,6 +305,7 @@ button {
 
 .film-card {
   flex-basis: 230px;
+  max-width: 230px;
   flex-shrink: 0;
   flex-grow: 0;
   margin-right: 10px;
@@ -340,6 +341,7 @@ button {
 }
 
 .film-card__info span {
+  display: inline-block;
   margin-right: 10px;
 }
 

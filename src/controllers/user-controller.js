@@ -14,7 +14,7 @@ export default class UserController {
   }
 
   _getUserRate(filmsData) {
-    const watchedList = filmsData.filter((film) => film.watched).length;
+    const watchedList = filmsData.filter(({userDetails}) => userDetails.alreadyWatched).length;
 
     if (watchedList <= 10) {
       return `novice`;
@@ -24,7 +24,7 @@ export default class UserController {
       return `fan`;
     }
 
-    if (watchedList > 20) {
+    if (watchedList > 19) {
       return `movie buff`;
     }
 
