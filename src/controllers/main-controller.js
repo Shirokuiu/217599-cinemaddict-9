@@ -8,22 +8,24 @@ import Menu from "../components/menu";
 import Sort from "../components/sort";
 import FilmsContent from "../components/films-content";
 
-import {Position, render} from "../utils";
+import {Position, render, unrender} from "../utils";
 
 import moment from "moment";
+import NoResult from "../components/no-result";
 
 export default class MainController {
-  constructor(authorization, endPoint, commentEmotions, onDataAppChange) {
+  constructor(authorization, endPoint, commentEmotions) {
     this._filmsData = [];
     this._authorization = authorization;
     this._endPoint = endPoint;
     this._commentEmotions = commentEmotions;
-    this._onDataAppChange = onDataAppChange;
 
     this._container = document.querySelector(`.main`);
     this._filmsContent = new FilmsContent();
     this._sort = new Sort();
     this._menu = new Menu({});
+    this._noResult = new NoResult();
+
     this._searchResultController = new SearchResultController(this._container);
     this._filmsController = new FilmsController(this._filmsContent.getElement());
     this._filmsTopRatedController = new FilmsTopRatedController(this._filmsContent.getElement());
@@ -35,12 +37,17 @@ export default class MainController {
 
   _init() {
     render(this._container, this._filmsContent.getElement());
+    this._renderNoResult(false, `loading`, this._filmsContent.getElement());
   }
 
   show(filmsData) {
     if (filmsData !== this._filmsData) {
       this._setFilmsData(filmsData);
     }
+  }
+
+  filmsIsLoaded() {
+    this._renderNoResult(true);
   }
 
   searchMode(filmsFound, mode) {
@@ -83,6 +90,8 @@ export default class MainController {
       if (evt.target.tagName.toLowerCase() !== `a`) {
         return;
       }
+
+      this._filmsController.onMenuDataChange();
 
       if (!(evt.target.classList.contains(`main-navigation__item--active`))) {
         this._resetButtons(this._menu, `main-navigation__item`);
@@ -135,6 +144,8 @@ export default class MainController {
       if (evt.target.tagName.toLowerCase() !== `a`) {
         return;
       }
+
+      this._filmsController.onSortDataChange();
 
       const menuMod = this._menu.getElement().querySelector(`.main-navigation__item.main-navigation__item--active`)
         .href.split(`#`)[1];
@@ -222,5 +233,29 @@ export default class MainController {
       element.getElement().querySelectorAll(`.${className}`)[0]
         .classList.add(`${className}--active`);
     }
+  }
+
+  _renderNoResult(remove = false, state = `no-result`, container) {
+    unrender(this._noResult.getElement());
+    this._noResult.removeElement();
+    if (remove) {
+      return;
+    }
+    this._noResult = new NoResult(this._setNoResultText(state));
+    render(container, this._noResult.getElement());
+  }
+
+  _setNoResultText(state) {
+    let resultText = ``;
+
+    switch (state) {
+      case `loading`:
+        resultText = `Loading…`;
+        break;
+      case `no-result`:
+        resultText = `There is no movies for your request.`;
+        break;
+    }
+    return resultText;
   }
 }

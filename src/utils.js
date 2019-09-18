@@ -2,6 +2,7 @@ export const AppSettings = {
   AUTHORIZATION: `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`,
   END_POINT: `https://htmlacademy-es-9.appspot.com/cinemaddict/`,
   COMMENT_EMOTIONS: [`smile`, `sleeping`, `puke`, `angry`],
+  FILMS_TO_ROW: 5
 };
 
 export const Position = {
