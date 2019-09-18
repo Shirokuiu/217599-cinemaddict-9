@@ -7,11 +7,11 @@ import FilmsController from "./films-controller";
 import Menu from "../components/menu";
 import Sort from "../components/sort";
 import FilmsContent from "../components/films-content";
+import NoResult from "../components/no-result";
 
-import {Position, render, unrender} from "../utils";
+import {Position, render, setNoResultText, unrender} from "../utils";
 
 import moment from "moment";
-import NoResult from "../components/no-result";
 
 export default class MainController {
   constructor(authorization, endPoint, commentEmotions) {
@@ -55,6 +55,7 @@ export default class MainController {
       this._menu.getElement().classList.add(`visually-hidden`);
       this._sort.getElement().classList.add(`visually-hidden`);
       this._filmsController.show(filmsFound);
+      this._filmsController.searchMode(mode, filmsFound);
       this._searchResultController.show(filmsFound);
       this._statisticController.hide();
       this._filmsTopRatedController.hide();
@@ -67,6 +68,7 @@ export default class MainController {
     this._resetButtons(this._sort, `sort__button`, true);
     this._searchResultController.hide();
     this._filmsController.show(filmsFound);
+    this._filmsController.searchMode(mode);
     this._filmsTopRatedController.show(filmsFound);
     this._filmsMostCommentedController.show(filmsFound);
   }
@@ -241,21 +243,7 @@ export default class MainController {
     if (remove) {
       return;
     }
-    this._noResult = new NoResult(this._setNoResultText(state));
+    this._noResult = new NoResult(setNoResultText(state));
     render(container, this._noResult.getElement());
-  }
-
-  _setNoResultText(state) {
-    let resultText = ``;
-
-    switch (state) {
-      case `loading`:
-        resultText = `Loading…`;
-        break;
-      case `no-result`:
-        resultText = `There is no movies for your request.`;
-        break;
-    }
-    return resultText;
   }
 }

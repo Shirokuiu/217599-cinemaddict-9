@@ -49,6 +49,20 @@ export const calculateGenres = (filmsWatched) => {
     }, {});
 };
 
+export const setNoResultText = (state) => {
+  let resultText = ``;
+
+  switch (state) {
+    case `loading`:
+      resultText = `Loading…`;
+      break;
+    case `no-result`:
+      resultText = `There is no movies for your request.`;
+      break;
+  }
+  return resultText;
+};
+
 export const createElement = (template) => {
   const newElement = document.createElement(`div`);
   newElement.innerHTML = template;
