@@ -8,10 +8,11 @@ import API from "../api/api";
 
 export default class AppController {
   constructor() {
-    this._api = new API({endPoint: AppSettings.END_POINT, authorization: AppSettings.AUTHORIZATION});
+    this._onAppDataChange = this._onAppDataChange.bind(this);
 
+    this._api = new API({endPoint: AppSettings.END_POINT, authorization: AppSettings.AUTHORIZATION});
     this._headerController = new HeaderController(this._onSearchDataChange.bind(this));
-    this._mainController = new MainController(AppSettings.AUTHORIZATION, AppSettings.END_POINT, AppSettings.COMMENT_EMOTIONS);
+    this._mainController = new MainController(this._onAppDataChange);
     this._footerController = new FooterController();
   }
 
@@ -27,5 +28,20 @@ export default class AppController {
 
   _onSearchDataChange(filmsFound, mode) {
     this._mainController.searchMode(filmsFound, mode);
+  }
+
+  _onAppDataChange(actionStatus, update) {
+    switch (actionStatus) {
+      case `update`:
+        this._api.updateFilm({
+          id: update.id,
+          data: update.toRAW()
+        })
+          .then(() => this._api.getFilms()
+            .then((films) => {
+              this._mainController.updateMenu(films);
+            }));
+        break;
+    }
   }
 }

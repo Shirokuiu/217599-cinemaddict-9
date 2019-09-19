@@ -7,10 +7,8 @@ import LoadMore from "../components/load-more";
 import {AppSettings, Position, render, setNoResultText, unrender} from "../utils";
 
 export default class FilmsController {
-  constructor(container, authorization, endPoint, commentEmotions) {
-    this._authorization = authorization;
-    this._endPoint = endPoint;
-    this._commentEmotions = commentEmotions;
+  constructor(container, onAppDataChange) {
+    this._onAppDataChange = onAppDataChange;
     this._filmsData = [];
     this._container = container;
     this._startLoad = 0;
@@ -73,7 +71,7 @@ export default class FilmsController {
   }
 
   _renderFilm(container, filmData) {
-    const movieController = new MovieController(container, filmData, this._authorization, this._endPoint, this._commentEmotions);
+    const movieController = new MovieController(container, filmData, this._onAppDataChange);
 
     movieController.init();
   }

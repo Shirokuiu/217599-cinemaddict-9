@@ -2,7 +2,8 @@ export const AppSettings = {
   AUTHORIZATION: `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`,
   END_POINT: `https://htmlacademy-es-9.appspot.com/cinemaddict/`,
   COMMENT_EMOTIONS: [`smile`, `sleeping`, `puke`, `angry`],
-  FILMS_TO_ROW: 5
+  FILMS_TO_ROW: 5,
+  PREVIEW_DESCRIPTION_LENGTH: 139,
 };
 
 export const Position = {
@@ -61,6 +62,16 @@ export const setNoResultText = (state) => {
       break;
   }
   return resultText;
+};
+
+export const resetButtons = (element, className, defaultState = false) => {
+  [...element.getElement().querySelectorAll(`.${className}`)]
+    .forEach((item) => item.classList.remove(`${className}--active`));
+
+  if (defaultState) {
+    element.getElement().querySelectorAll(`.${className}`)[0]
+      .classList.add(`${className}--active`);
+  }
 };
 
 export const createElement = (template) => {

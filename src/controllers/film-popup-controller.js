@@ -4,16 +4,17 @@ import FilmPopupContainer from "../components/film-popup-container";
 
 import API from "../api/api";
 
-import {render, unrender} from "../utils";
+import {AppSettings, render, unrender} from "../utils";
 
 export default class FilmPopupController {
-  constructor(commentEmotions, runtime, authorization, endPoint) {
-    this._authorization = authorization;
-    this._endPoint = endPoint;
+  constructor(runtime) {
+    this._authorization = AppSettings.AUTHORIZATION;
+    this._endPoint = AppSettings.END_POINT;
     this._api = new API({endPoint: this._endPoint, authorization: this._authorization});
-    this._commentEmotions = commentEmotions;
+    this._commentEmotions = AppSettings.COMMENT_EMOTIONS;
     this._runtime = runtime;
     this._container = document.querySelector(`body`);
+
     this.filmPopupContainer = new FilmPopupContainer();
   }
 

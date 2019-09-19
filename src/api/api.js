@@ -4,6 +4,7 @@ import CommentModel from "../models/comment-model";
 const Method = {
   GET: `GET`,
   POST: `POST`,
+  PUT: `PUT`,
   DELETE: `DELETE`,
 };
 
@@ -35,6 +36,17 @@ export default class API {
     return this._load({url: `comments/${filmId}`})
       .then(toJSON)
       .then(CommentModel.parseComments);
+  }
+
+  updateFilm({id, data}) {
+    return this._load({
+      url: `movies/${id}`,
+      method: Method.PUT,
+      body: JSON.stringify(data),
+      headers: new Headers({'Content-Type': `application/json`})
+    })
+      .then(toJSON)
+      .then(FilmModel.parseFilm);
   }
 
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {

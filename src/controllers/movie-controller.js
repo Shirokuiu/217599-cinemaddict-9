@@ -2,29 +2,23 @@ import FilmPopupController from "./film-popup-controller";
 
 import Film from "../components/film";
 
-import {getTimeFromMinutes, render} from "../utils";
+import {AppSettings, getTimeFromMinutes, render} from "../utils";
+import moment from "moment";
 
 export default class MovieController {
-  constructor(container, filmData, authorization, endPoint, commentEmotions) {
-    this._authorization = authorization;
-    this._endPoint = endPoint;
-    this._commentEmotions = commentEmotions;
-    this._titleLength = 139;
+  constructor(container, filmData, onAppDataChange) {
+    this._onAppDataChange = onAppDataChange;
+    this._descriptionLength = AppSettings.PREVIEW_DESCRIPTION_LENGTH;
     this._filmData = filmData;
     this._container = container;
-    this._film = new Film(this._filmData, this._titleLength, getTimeFromMinutes(this._filmData.filmInfo.runtime));
-    this._filmPopupController =
-      new FilmPopupController(
-          this._commentEmotions,
-          getTimeFromMinutes(this._filmData.filmInfo.runtime),
-          this._authorization,
-          this._endPoint
-      );
+
+    this._film = new Film(this._filmData, this._descriptionLength, getTimeFromMinutes(this._filmData.filmInfo.runtime));
+    this._filmPopupController = new FilmPopupController(getTimeFromMinutes(this._filmData.filmInfo.runtime));
   }
 
   init() {
     this._film.getElement().querySelector(`.film-card__controls`)
-      .addEventListener(`click`, this._onFilmCardControlsClick.bind(this));
+      .addEventListener(`click`, this._onFilmControlsClick.bind(this));
 
     [...this._film.getElement().querySelectorAll(`.film-card__poster, .film-card__title, .film-card__comments`)]
       .forEach((item) => item.addEventListener(`click`, () => {
@@ -35,22 +29,27 @@ export default class MovieController {
     render(this._container, this._film.getElement());
   }
 
-  _onFilmCardControlsClick(evt) {
+  _onFilmControlsClick(evt) {
     evt.preventDefault();
-
-    const entry = this._makeEntry(this._filmData);
 
     evt.target.classList.toggle(`film-card__controls-item--active`);
 
-    entry.watchlist = this._film.getElement().querySelector(`.film-card__controls-item--add-to-watchlist`).classList
-      .contains(`film-card__controls-item--active`);
-    entry.watched = this._film.getElement().querySelector(`.film-card__controls-item--mark-as-watched`).classList
-      .contains(`film-card__controls-item--active`);
-    entry.favorite = this._film.getElement().querySelector(`.film-card__controls-item--favorite`).classList
-      .contains(`film-card__controls-item--active`);
-  }
+    this._filmData.userDetails.watchlist = this._film.getElement()
+      .querySelector(`.film-card__controls-item--add-to-watchlist`)
+      .classList.contains(`film-card__controls-item--active`);
+    this._filmData.userDetails.alreadyWatched = this._film.getElement()
+      .querySelector(`.film-card__controls-item--mark-as-watched`)
+      .classList.contains(`film-card__controls-item--active`);
+    this._filmData.userDetails.favorite = this._film.getElement()
+      .querySelector(`.film-card__controls-item--favorite`)
+      .classList.contains(`film-card__controls-item--active`);
+    if (this._film.getElement().querySelector(`.film-card__controls-item--mark-as-watched`)
+      .classList.contains(`film-card__controls-item--active`)) {
+      this._filmData.userDetails.watchingDate = moment(this._filmData.userDetails.watchingDate).toISOString();
+    } else {
+      this._filmData.userDetails.watchingDate = null;
+    }
 
-  _makeEntry(filmData) {
-    return Object.assign({}, filmData);
+    this._onAppDataChange(`update`, this._filmData);
   }
 }

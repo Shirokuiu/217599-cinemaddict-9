@@ -3,7 +3,7 @@ import Component from "./component";
 import moment from "moment";
 
 export default class Film extends Component {
-  constructor({comments, filmInfo, userDetails}, titleLength, runtime) {
+  constructor({comments, filmInfo, userDetails}, descriptionLength, runtime) {
     super();
     this._title = filmInfo.title;
     this._totalRating = filmInfo.totalRating;
@@ -17,7 +17,7 @@ export default class Film extends Component {
     this._alreadyWatched = userDetails.alreadyWatched;
     this._favorite = userDetails.favorite;
 
-    this._titleLength = titleLength;
+    this._descriptionLength = descriptionLength;
   }
 
   getTemplate() {
@@ -33,8 +33,8 @@ export default class Film extends Component {
           <p 
             class="film-card__description"
           >
-            ${this._description.length > this._titleLength ? (this._description
-              .slice(0, this._titleLength)) + `...` : this._description}
+            ${this._description.length > this._descriptionLength ? (this._description
+              .slice(0, this._descriptionLength)) + `...` : this._description}
           </p>
           <a class="film-card__comments">${this._comments.length} comments</a>
           <form class="film-card__controls">

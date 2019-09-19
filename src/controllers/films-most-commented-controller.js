@@ -5,10 +5,7 @@ import FilmsListCommented from "../components/films-list-commented";
 import {render, unrender} from "../utils";
 
 export default class FilmsMostCommentedController {
-  constructor(container, authorization, endPoint, commentEmotions) {
-    this._authorization = authorization;
-    this._endPoint = endPoint;
-    this._commentEmotions = commentEmotions;
+  constructor(container) {
     this._container = container;
     this._filmListCommented = new FilmsListCommented();
   }
@@ -33,7 +30,7 @@ export default class FilmsMostCommentedController {
   }
 
   _renderFilm(container, filmsData) {
-    const movieController = new MovieController(container, filmsData, this._authorization, this._endPoint, this._commentEmotions);
+    const movieController = new MovieController(container, filmsData);
 
     movieController.init();
   }
