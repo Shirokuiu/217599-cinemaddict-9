@@ -5,7 +5,8 @@ import FilmsListCommented from "../components/films-list-commented";
 import {render, unrender} from "../utils";
 
 export default class FilmsMostCommentedController {
-  constructor(container) {
+  constructor(container, onAppDataChange) {
+    this._onAppDataChange = onAppDataChange;
     this._container = container;
     this._filmListCommented = new FilmsListCommented();
   }
@@ -30,7 +31,7 @@ export default class FilmsMostCommentedController {
   }
 
   _renderFilm(container, filmsData) {
-    const movieController = new MovieController(container, filmsData);
+    const movieController = new MovieController(container, filmsData, this._onAppDataChange, `widget`);
 
     movieController.init();
   }

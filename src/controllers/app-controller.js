@@ -5,14 +5,13 @@ import FooterController from "./footer-controller";
 import {AppSettings} from "../utils";
 
 import API from "../api/api";
+import film from "../components/film";
 
 export default class AppController {
   constructor() {
-    this._onAppDataChange = this._onAppDataChange.bind(this);
-
     this._api = new API({endPoint: AppSettings.END_POINT, authorization: AppSettings.AUTHORIZATION});
     this._headerController = new HeaderController(this._onSearchDataChange.bind(this));
-    this._mainController = new MainController(this._onAppDataChange);
+    this._mainController = new MainController(this._onAppDataChange.bind(this));
     this._footerController = new FooterController();
   }
 
@@ -30,7 +29,7 @@ export default class AppController {
     this._mainController.searchMode(filmsFound, mode);
   }
 
-  _onAppDataChange(actionStatus, update) {
+  _onAppDataChange(actionStatus, update, context, searchMode) {
     switch (actionStatus) {
       case `update`:
         this._api.updateFilm({
@@ -39,7 +38,22 @@ export default class AppController {
         })
           .then(() => this._api.getFilms()
             .then((films) => {
-              this._mainController.updateMenu(films);
+              if (!searchMode) {
+                this._mainController.updateMenu(films);
+              }
+              this._headerController.updateUserData(films);
+              switch (context) {
+                case `films-list`:
+                  this._mainController.updateWidgets(films);
+                  break;
+                case `widget`:
+                  this._mainController.updateFilmsList(films);
+                  break;
+                case `popup`:
+                  this._mainController.updateFilmsList(films);
+                  this._mainController.updateWidgets(films);
+                  break;
+              }
             }));
         break;
     }

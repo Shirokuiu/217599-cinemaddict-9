@@ -2,18 +2,21 @@ import FilmPopupController from "./film-popup-controller";
 
 import Film from "../components/film";
 
-import {AppSettings, getTimeFromMinutes, render} from "../utils";
+import {AppSettings, getTimeFromMinutes, parseWatchingDate, render} from "../utils";
+
 import moment from "moment";
 
 export default class MovieController {
-  constructor(container, filmData, onAppDataChange) {
+  constructor(container, filmData, onAppDataChange, context, searchMode) {
     this._onAppDataChange = onAppDataChange;
     this._descriptionLength = AppSettings.PREVIEW_DESCRIPTION_LENGTH;
     this._filmData = filmData;
     this._container = container;
+    this._context = context;
+    this._searchMode = searchMode;
 
     this._film = new Film(this._filmData, this._descriptionLength, getTimeFromMinutes(this._filmData.filmInfo.runtime));
-    this._filmPopupController = new FilmPopupController(getTimeFromMinutes(this._filmData.filmInfo.runtime));
+    this._filmPopupController = new FilmPopupController(onAppDataChange);
   }
 
   init() {
@@ -43,13 +46,8 @@ export default class MovieController {
     this._filmData.userDetails.favorite = this._film.getElement()
       .querySelector(`.film-card__controls-item--favorite`)
       .classList.contains(`film-card__controls-item--active`);
-    if (this._film.getElement().querySelector(`.film-card__controls-item--mark-as-watched`)
-      .classList.contains(`film-card__controls-item--active`)) {
-      this._filmData.userDetails.watchingDate = moment(this._filmData.userDetails.watchingDate).toISOString();
-    } else {
-      this._filmData.userDetails.watchingDate = null;
-    }
+    this._filmData.userDetails.watchingDate = parseWatchingDate(this._filmData);
 
-    this._onAppDataChange(`update`, this._filmData);
+    this._onAppDataChange(`update`, this._filmData, this._context, this._searchMode);
   }
 }

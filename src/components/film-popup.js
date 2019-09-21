@@ -1,6 +1,7 @@
 import Component from "./component";
 
 import moment from "moment";
+import {AppSettings} from "../utils";
 
 export default class FilmPopup extends Component {
   constructor({filmInfo, userDetails}, runtime) {
@@ -131,13 +132,13 @@ export default class FilmPopup extends Component {
             <p class="film-details__user-rating-feelings">How you feel it?</p>
 
             <div class="film-details__user-rating-score">
-              ${new Array(9).fill().map((item, idx) =>`<input 
+              ${new Array(AppSettings.PERSONAL_RATING_POINTS.END).fill().map((item, idx) =>`<input 
                 type="radio" 
                 name="score" 
                 class="film-details__user-rating-input visually-hidden" 
-                value="${idx + 1}" 
-                id="rating-${idx + 1}"
-                ${(idx + 1) === this._personalRating ? `checked` : ``}
+                value="${idx + AppSettings.PERSONAL_RATING_POINTS.START}" 
+                id="rating-${idx + AppSettings.PERSONAL_RATING_POINTS.START}"
+                ${(idx + AppSettings.PERSONAL_RATING_POINTS.START) === this._personalRating ? `checked` : ``}
                 >
               <label class="film-details__user-rating-label" for="rating-${idx + 1}">${idx + 1}</label>`).join(``)}
             </div>

@@ -1,9 +1,15 @@
+import moment from "moment";
+
 export const AppSettings = {
   AUTHORIZATION: `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`,
   END_POINT: `https://htmlacademy-es-9.appspot.com/cinemaddict/`,
   COMMENT_EMOTIONS: [`smile`, `sleeping`, `puke`, `angry`],
   FILMS_TO_ROW: 5,
   PREVIEW_DESCRIPTION_LENGTH: 139,
+  PERSONAL_RATING_POINTS: {
+    START: 1,
+    END: 9
+  }
 };
 
 export const Position = {
@@ -72,6 +78,13 @@ export const resetButtons = (element, className, defaultState = false) => {
     element.getElement().querySelectorAll(`.${className}`)[0]
       .classList.add(`${className}--active`);
   }
+};
+
+export const parseWatchingDate = (filmData) => {
+  if (filmData.userDetails.watchingDate) {
+    return moment(filmData.userDetails.watchingDate).toISOString();
+  }
+  return moment(Date.now()).toISOString();
 };
 
 export const createElement = (template) => {

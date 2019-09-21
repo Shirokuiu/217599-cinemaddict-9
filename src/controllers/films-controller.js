@@ -57,7 +57,7 @@ export default class FilmsController {
       this._updateLoadMoreButton(status);
       this._updateFilmList();
       filmsData.forEach((film) => this._renderFilm(this._filmsList
-        .getElement().querySelector(`.films-list__container`), film));
+        .getElement().querySelector(`.films-list__container`), film, true));
       if (!filmsData.length) {
         this._renderNoResult(false, `no-result`);
       }
@@ -70,8 +70,8 @@ export default class FilmsController {
       .getElement().querySelector(`.films-list__container`), film));
   }
 
-  _renderFilm(container, filmData) {
-    const movieController = new MovieController(container, filmData, this._onAppDataChange);
+  _renderFilm(container, filmData, searchMode) {
+    const movieController = new MovieController(container, filmData, this._onAppDataChange, `films-list`, searchMode);
 
     movieController.init();
   }
