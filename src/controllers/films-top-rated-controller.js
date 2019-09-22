@@ -2,13 +2,19 @@ import MovieController from "./movie-controller";
 
 import FilmListRated from "../components/film-list-rated";
 
-import {render, unrender} from "../utils";
+import {Position, render, unrender, update} from "../utils";
 
 export default class FilmsTopRatedController {
   constructor(container, onAppDataChange) {
     this._onAppDataChange = onAppDataChange;
     this._container = container;
     this._filmListRated = new FilmListRated();
+
+    this._init();
+  }
+
+  _init() {
+    render(this._container, this._filmListRated.getElement());
   }
 
   show(filmsData) {

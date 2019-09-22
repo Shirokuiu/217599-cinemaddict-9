@@ -22,7 +22,6 @@ export default class FilmsController {
   show(filmsData) {
     if (filmsData !== this._filmsData) {
       this._updateFilmList();
-
       this._setFilmsData(filmsData);
     }
 
@@ -64,6 +63,10 @@ export default class FilmsController {
     }
   }
 
+  updateComments(updatedComments) {
+    this._movieController.updateComments(updatedComments);
+  }
+
   _setFilmsData(filmsData) {
     this._filmsData = filmsData;
     filmsData.slice(this._startLoad, AppSettings.FILMS_TO_ROW).forEach((film) => this._renderFilm(this._filmsList
@@ -71,9 +74,9 @@ export default class FilmsController {
   }
 
   _renderFilm(container, filmData, searchMode) {
-    const movieController = new MovieController(container, filmData, this._onAppDataChange, `films-list`, searchMode);
+    this._movieController = new MovieController(container, filmData, this._onAppDataChange, `films-list`, searchMode);
 
-    movieController.init();
+    this._movieController.init();
   }
 
   _onLoadMoreClick() {

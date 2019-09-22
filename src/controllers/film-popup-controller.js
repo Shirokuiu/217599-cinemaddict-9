@@ -5,15 +5,21 @@ import FilmPopupContainer from "../components/film-popup-container";
 import API from "../api/api";
 
 import {AppSettings, getTimeFromMinutes, parseWatchingDate, render, unrender} from "../utils";
+import PopupControlsController from "./popup-controls-controller";
+import PopupRateController from "./popup-rate-controller";
+import CommentsContainer from "../components/comments-container";
 
 export default class FilmPopupController {
   constructor(onAppDataChange) {
     this._onAppDataChange = onAppDataChange;
-    this._api = new API({endPoint: AppSettings.END_POINT, authorization: AppSettings.AUTHORIZATION});
+    this._filmData = [];
+    // this._api = new API({endPoint: AppSettings.END_POINT, authorization: AppSettings.AUTHORIZATION});
     this._commentEmotions = AppSettings.COMMENT_EMOTIONS;
     this._container = document.querySelector(`body`);
 
-    this.filmPopupContainer = new FilmPopupContainer();
+    this._filmPopupContainer = new FilmPopupContainer();
+    this._popupRateController = new PopupRateController();
+    this._commentsController = new CommentsController();
   }
 
   hide() {
@@ -27,22 +33,29 @@ export default class FilmPopupController {
     this._setFilmData(filmData);
   }
 
+  updateComments(updatedComments) {
+    this._commentsController.show(updatedComments);
+  }
+
   _setFilmData(filmData) {
-    this._renderFilmPopup(this.filmPopupContainer.getElement(), filmData);
+    this._filmData = filmData;
+    this._renderFilmPopup(this._filmPopupContainer.getElement(), filmData);
   }
 
   _renderPopupContainer(remove = false) {
     if (remove) {
-      unrender(this.filmPopupContainer.getElement());
-      this.filmPopupContainer.removeElement();
+      unrender(this._filmPopupContainer.getElement());
+      this._filmPopupContainer.removeElement();
       return;
     }
-    render(this._container, this.filmPopupContainer.getElement());
+    render(this._container, this._filmPopupContainer.getElement());
   }
 
   _renderFilmPopup(container, filmData) {
     const filmPopup = new FilmPopup(filmData, getTimeFromMinutes(filmData.filmInfo.runtime));
-    const commentsController = new CommentsController(filmPopup.getElement().querySelector(`.form-details__bottom-container`), this._commentEmotions);
+    const popupControlsController = new PopupControlsController(filmPopup.getElement().querySelector(`.form-details__top-container`), filmData, this._onControlsDataChange.bind(this));
+    this._popupRateController = new PopupRateController(filmPopup.getElement().querySelector(`.form-details__middle-container`), this._onSelectRateDataChange.bind(this));
+    this._commentsController = new CommentsController(filmPopup.getElement(), this._commentEmotions, filmData.id, this._onAppDataChange);
 
     const onEscKeyDown = (evt) => {
       if (evt.key === `Escape` || evt.key === `Esc`) {
@@ -50,37 +63,6 @@ export default class FilmPopupController {
         this.hide();
         document.removeEventListener(`keydown`, onEscKeyDown);
       }
-    };
-
-    const onPopupControlsClick = (evt) => {
-      if (evt.target.tagName.toLowerCase() !== `input`) {
-        return;
-      }
-      filmData.userDetails.watchlist = filmPopup.getElement().querySelector(`#watchlist`).checked;
-      filmData.userDetails.alreadyWatched = filmPopup.getElement().querySelector(`#watched`).checked;
-      filmData.userDetails.favorite = filmPopup.getElement().querySelector(`#favorite`).checked;
-
-      if (evt.target.id === `watched` && evt.target.checked === false) {
-        this._resetRate(filmPopup.getElement(), filmData, true);
-      } else {
-        filmPopup.getElement().querySelector(`.form-details__middle-container`)
-          .classList.toggle(`visually-hidden`);
-      }
-
-      this._onAppDataChange(`update`, filmData, `popup`);
-    };
-
-    const onUndoClick = () => {
-      if (filmData.userDetails.personalRating) {
-        this._resetRate(filmPopup.getElement(), filmData);
-      }
-    };
-
-    const onSelectRatingClick = (evt) => {
-      if (evt.target.tagName.toLowerCase() !== `input`) {
-        return;
-      }
-      this._selectRate(filmPopup.getElement(), filmData, +evt.target.value);
     };
 
     document.addEventListener(`keydown`, onEscKeyDown);
@@ -91,81 +73,47 @@ export default class FilmPopupController {
       this.hide();
     });
 
-    filmPopup.getElement().querySelector(`.film-details__controls`)
-      .addEventListener(`click`, onPopupControlsClick);
-    filmPopup.getElement().querySelector(`.film-details__user-rating-score`)
-      .addEventListener(`click`, onSelectRatingClick);
-    filmPopup.getElement().querySelector(`.film-details__watched-reset`).addEventListener(`click`, onUndoClick);
-
     render(container, filmPopup.getElement());
+    popupControlsController.init();
+    this._popupRateController.show(filmData);
+    this._commentsController.init();
 
-    this._api.getComments(filmData.id)
-      .then((comments) => {
-        commentsController.show(comments);
-        filmPopup.getElement().querySelector(`.film-details__comment-input`)
-          .addEventListener(`focus`, () => {
-            document.removeEventListener(`keydown`, onEscKeyDown);
-          });
-        filmPopup.getElement().querySelector(`.film-details__comment-input`)
-          .addEventListener(`blur`, () => {
-            document.addEventListener(`keydown`, onEscKeyDown);
-          });
-      });
+    // this._api.getComments(filmData.id)
+    //   .then((comments) => {
+    //     this._commentsController.show(comments);
+    //     filmPopup.getElement().querySelector(`.film-details__comment-input`)
+    //       .addEventListener(`focus`, () => {
+    //         document.removeEventListener(`keydown`, onEscKeyDown);
+    //       });
+    //     filmPopup.getElement().querySelector(`.film-details__comment-input`)
+    //       .addEventListener(`blur`, () => {
+    //         document.addEventListener(`keydown`, onEscKeyDown);
+    //       });
+    //   });
   }
 
-  _selectRate(element, filmData, rateNumber) {
-    this._block(element);
-    this._api.updateFilm({
-      id: filmData.id,
-      data: filmData.toRAW()
-    })
-      .then(() => {
-        this._unBlock(element);
-        filmData.userDetails.personalRating = rateNumber;
-      })
-      .catch(() => {
-        this._unBlock(element);
-      })
+  _onControlsDataChange(controlItem) {
+    this._filmData.userDetails[this._userDetailsToRAW()[controlItem.id]] = controlItem.checked;
+
+    if (controlItem.id === `watched`) {
+      this._filmPopupContainer.getElement().querySelector(`.form-details__middle-container `)
+        .classList.toggle(`visually-hidden`);
+    }
+
+    this._onAppDataChange(`update`, this._filmData, `popup`);
   }
 
-  _resetRate(element, filmData, remove = false) {
-    this._block(element);
-    this._api.updateFilm({
-      id: filmData.id,
-      data: filmData.toRAW()
-    }).then(() => {
-      this._unBlock(element);
-      filmData.userDetails.personalRating = 0;
-      [...element.querySelectorAll(`.film-details__user-rating-input`)].forEach((rate) => {
-        rate.checked = false;
-      });
+  _onSelectRateDataChange(rateValue) {
+    this._filmData.userDetails.personalRating = rateValue;
 
-      if (remove) {
-        element.querySelector(`.form-details__middle-container`)
-          .classList.toggle(`visually-hidden`);
-      }
-    })
-      .catch(() => {
-        element.querySelector(`#watched`).checked = true;
-        this._unBlock(element);
-      });
+    this._onAppDataChange(`update`, this._filmData, `popup`);
   }
 
-  _block(element) {
-    element.querySelector(`.film-details__user-rating-wrap`).style.opacity = `0.5`;
-    element.querySelector(`#watched`).disabled = true;
-    element.querySelector(`.film-details__watched-reset`).disabled = true;
-    [...element.querySelectorAll(`.film-details__user-rating-input`)].forEach((rate) => {
-      rate.disabled = true;
-    })
-  }
-
-  _unBlock(element) {
-    element.querySelector(`.film-details__user-rating-wrap`).style.opacity = `1`;
-    element.querySelector(`#watched`).disabled = false;
-    element.querySelector(`.film-details__watched-reset`).disabled = false;
-    [...element.querySelectorAll(`.film-details__user-rating-input`)].forEach((rate) => {
-      rate.disabled = false;
-    })
+  _userDetailsToRAW() {
+    return {
+      watchlist: `watchlist`,
+      watched: `alreadyWatched`,
+      favorite: `favorite`
+    }
   }
 }

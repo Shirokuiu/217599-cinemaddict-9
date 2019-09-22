@@ -1,5 +1,5 @@
 import Sort from "../components/sort";
-import {Position, render, resetButtons, unrender} from "../utils";
+import {Position, render, resetButtons, unrender, update} from "../utils";
 import moment from "moment";
 
 export default class SortController {

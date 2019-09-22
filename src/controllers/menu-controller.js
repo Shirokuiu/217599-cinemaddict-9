@@ -12,12 +12,10 @@ export default class MenuController {
   }
 
   show(filmsData) {
-    if (filmsData !== this.filmsData) {
-      unrender(this._menu.getElement());
-      this._menu.removeElement();
+    unrender(this._menu.getElement());
+    this._menu.removeElement();
 
-      this._setMenuData(filmsData);
-    }
+    this._setMenuData(filmsData);
   }
 
   hide() {

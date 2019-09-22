@@ -32,6 +32,10 @@ export default class MovieController {
     render(this._container, this._film.getElement());
   }
 
+  updateComments(updatedComments) {
+    this._filmPopupController.updateComments(updatedComments);
+  }
+
   _onFilmControlsClick(evt) {
     evt.preventDefault();
 

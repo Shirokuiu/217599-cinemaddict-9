@@ -24,6 +24,11 @@ export default class MainController {
     this._sortController = new SortController(this._container, this._onSortDataChange.bind(this));
     this._searchResultController = new SearchResultController(this._container);
 
+    this._filmsController = new FilmsController(this._filmsContent.getElement(), this._onAppDataChange);
+    this._filmsTopRatedController = new FilmsTopRatedController(this._filmsContent.getElement(), this._onAppDataChange);
+    this._filmsMostCommentedController = new FilmsMostCommentedController(this._filmsContent.getElement(), this._onAppDataChange);
+    this._statisticController = new StatisticController(this._container);
+
     this._init();
   }
 
@@ -33,9 +38,7 @@ export default class MainController {
   }
 
   show(filmsData) {
-    if (filmsData !== this._filmsData) {
-      this._setFilmsData(filmsData);
-    }
+    this._setFilmsData(filmsData);
   }
 
   filmsIsLoaded() {
@@ -74,6 +77,10 @@ export default class MainController {
 
   updateFilmsList(updatedFilms) {
     this._filmsController.show(updatedFilms);
+  }
+
+  updateComments(updatedComments) {
+    this._filmsController.updateComments(updatedComments);
   }
 
   _setFilmsData(filmsData) {
@@ -130,10 +137,10 @@ export default class MainController {
   }
 
   _renderMainController(container, filmsData) {
-    this._filmsController = new FilmsController(this._filmsContent.getElement(), this._onAppDataChange);
-    this._filmsTopRatedController = new FilmsTopRatedController(this._filmsContent.getElement(), this._onAppDataChange);
-    this._filmsMostCommentedController = new FilmsMostCommentedController(this._filmsContent.getElement(), this._onAppDataChange);
-    this._statisticController = new StatisticController(this._container);
+    // this._filmsController = new FilmsController(this._filmsContent.getElement(), this._onAppDataChange);
+    // this._filmsTopRatedController = new FilmsTopRatedController(this._filmsContent.getElement(), this._onAppDataChange);
+    // this._filmsMostCommentedController = new FilmsMostCommentedController(this._filmsContent.getElement(), this._onAppDataChange);
+    // this._statisticController = new StatisticController(this._container);
 
     this._sortController.show(filmsData);
     this._menuController.show(filmsData);

@@ -56,6 +56,20 @@ export default class AppController {
               }
             }));
         break;
+      case `add-comment`:
+        this._api.updateComment({
+          id: update.id,
+          data: update.toRAW()
+        })
+          .then(() => this._api.getComments(update.id)
+            .then((comments) => {
+              this._mainController.updateComments(comments);
+            }))
+          .then(() =>  this._api.getFilms()
+            .then((films) => {
+              this._mainController.updateFilmsList(films);
+              this._mainController.updateWidgets(films);
+            }))
     }
   }
 }

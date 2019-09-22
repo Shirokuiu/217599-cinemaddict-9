@@ -1,16 +1,15 @@
 import UserController from "./user-controller";
 
 import Search from "../components/search";
-import UserContent from "../components/user-content";
 
-import {render, unrender} from "../utils";
+import {render} from "../utils";
 
 export default class HeaderController {
   constructor(onSearchDataChange) {
     this._container = document.querySelector(`.header`);
     this._filmsData = [];
     this._search = new Search();
-    this._userContent = new UserContent();
+    this._userController = new UserController(this._container);
     this._onSearchDataChange = onSearchDataChange;
     this._searchingMode = false;
 
@@ -19,7 +18,6 @@ export default class HeaderController {
 
   _init() {
     render(this._container, this._search.getElement());
-    render(this._container, this._userContent.getElement());
 
     this._search.getElement().querySelector(`.search__field`)
       .addEventListener(`input`, this._onSearchInput.bind(this));
@@ -33,24 +31,17 @@ export default class HeaderController {
     }
   }
 
-  updateUserData() {
-    unrender(this._userContent.getElement());
-    this._userContent.removeElement();
-
-    render(this._container, this._userContent.getElement());
-    this._renderUser(this._userContent.getElement(), this._filmsData);
-  }
-
-  _renderUser(container, filmsData) {
-    const userController = new UserController(container, filmsData);
-
-    userController.init();
-  }
-
   _setFilmsData(filmsData) {
     this._filmsData = filmsData;
+    this._renderUser(filmsData);
+  }
 
-    this._renderUser(this._userContent.getElement(), filmsData);
+  updateUserData() {
+    this._renderUser(this._filmsData);
+  }
+
+  _renderUser(filmsData) {
+    this._userController.show(filmsData);
   }
 
   _onSearchInput(evt) {
