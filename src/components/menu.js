@@ -1,10 +1,10 @@
 import Component from "./component";
 
 export default class Menu extends Component {
-  constructor({watchList, history, favorite}) {
+  constructor({watchList, alreadyWatched, favorite}) {
     super();
     this._watchList = watchList;
-    this._history = history;
+    this._alreadyWatched = alreadyWatched;
     this._favorite = favorite;
   }
 
@@ -14,7 +14,7 @@ export default class Menu extends Component {
     <a href="#watchlist" class="main-navigation__item">Watchlist 
     <span class="main-navigation__item-count">${this._watchList}</span></a>
     <a href="#history" class="main-navigation__item">History 
-    <span class="main-navigation__item-count">${this._history}</span></a>
+    <span class="main-navigation__item-count">${this._alreadyWatched}</span></a>
     <a href="#favorites" class="main-navigation__item">Favorites 
     <span class="main-navigation__item-count">${this._favorite}</span></a>
     <a href="#stats" class="main-navigation__item main-navigation__item--additional">Stats</a>

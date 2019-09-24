@@ -7,9 +7,11 @@ export default class FooterController {
     this._filmsData = filmsData;
     this._container = document.querySelector(`.footer`);
     this._footer = new Footer(this._getTotalFilms(this._filmsData));
+
+    this._init();
   }
 
-  init() {
+  _init() {
     render(this._container, this._footer.getElement());
   }
 

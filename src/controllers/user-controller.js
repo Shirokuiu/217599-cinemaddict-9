@@ -1,33 +1,36 @@
 import User from "../components/user";
 
-import {render} from "../utils";
+import {getUserRate, render, unrender} from "../utils";
 
 export default class UserController {
   constructor(container, filmsData) {
     this._filmsData = filmsData;
     this._container = container;
-    this._user = new User(this._getUserRate(this._filmsData));
+    this._user = new User(getUserRate(this._filmsData));
+
+    this._init();
   }
 
-  init() {
+  _init() {
     render(this._container, this._user.getElement());
   }
 
-  _getUserRate(filmsData) {
-    const watchedList = filmsData.filter((film) => film.watched).length;
+  update(updatedData) {
+    unrender(this._user.getElement());
+    this._user.removeElement();
 
-    if (watchedList <= 10) {
-      return `novice`;
-    }
+    this._updateData(this._container, updatedData);
+  }
 
-    if (watchedList > 10 && watchedList < 20) {
-      return `fan`;
-    }
+  _updateData(container, updatedData) {
+    this._filmsData = updatedData;
 
-    if (watchedList > 20) {
-      return `movie buff`;
-    }
+    this._updateView(container, this._filmsData);
+  }
 
-    return undefined;
+  _updateView(container, updatedData) {
+    this._user = new User(getUserRate(updatedData));
+
+    render(container, this._user.getElement());
   }
 }
