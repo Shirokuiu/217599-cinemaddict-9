@@ -39,7 +39,6 @@ export default class Comments extends Component {
           <label class="film-details__comment-label">
             <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
           </label>
-
           <div class="film-details__emoji-list">
             ${this._commentEmotions.map((emotion) => `<input 
               class="film-details__emoji-item visually-hidden" 
