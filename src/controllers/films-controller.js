@@ -80,7 +80,14 @@ export default class FilmsController {
   }
 
   _renderFilm(container, filmData, searchMode) {
-    const movieController = new MovieController(container, filmData, this._onAppDataChange, `films-list`, this._onFilmClickChange, searchMode);
+    const movieController = new MovieController(
+        container,
+        filmData,
+        this._onAppDataChange,
+        `films-list`,
+        this._onFilmClickChange,
+        searchMode
+    );
 
     movieController.init();
   }

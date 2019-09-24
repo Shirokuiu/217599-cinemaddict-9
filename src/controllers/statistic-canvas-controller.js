@@ -9,8 +9,9 @@ export default class StatisticCanvasController {
   constructor(container, filmsData) {
     this.filmsData = filmsData;
     this._container = container;
-    this._statisticCanvas = new StatisticCanvas();
     this._genres = calculateGenres(this.filmsData);
+
+    this._statisticCanvas = new StatisticCanvas();
     this._chart = null;
 
     this._init();

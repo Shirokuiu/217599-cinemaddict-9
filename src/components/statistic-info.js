@@ -4,8 +4,8 @@ export default class StatisticInfo extends Component {
   constructor({topGenre, totalDuration, watched}) {
     super();
     this._topGenre = topGenre;
-    this._hours = totalDuration ? totalDuration.hours : ``;
-    this._minutes = totalDuration ? totalDuration.minutes : ``;
+    this._hours = totalDuration.hours;
+    this._minutes = totalDuration.minutes;
     this._watched = watched;
   }
 

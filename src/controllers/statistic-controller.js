@@ -15,10 +15,22 @@ export default class StatisticController {
     this._filmsData = filmsData;
     this._statisticContainer = new StatisticContainer();
 
-    this._statisticUserRateController = new StatisticUserRateController(this._statisticContainer.getElement().querySelector(`.statistic__rank-wrap`), this._filmsData);
-    this._statisticFiltersController = new StatisticFiltersController(this._statisticContainer.getElement().querySelector(`.statistic__filters-wrap`), this._onStatisticDataChange.bind(this));
-    this._statisticInfoController = new StatisticInfoController(this._statisticContainer.getElement().querySelector(`.statistic__text-list-wrap`), this._filmsData);
-    this._statisticCanvasController = new StatisticCanvasController(this._statisticContainer.getElement(), this._filmsData);
+    this._statisticUserRateController = new StatisticUserRateController(
+        this._statisticContainer.getElement().querySelector(`.statistic__rank-wrap`),
+        this._filmsData
+    );
+    this._statisticFiltersController = new StatisticFiltersController(
+        this._statisticContainer.getElement().querySelector(`.statistic__filters-wrap`),
+        this._onStatisticDataChange.bind(this)
+    );
+    this._statisticInfoController = new StatisticInfoController(
+        this._statisticContainer.getElement().querySelector(`.statistic__text-list-wrap`),
+        this._filmsData
+    );
+    this._statisticCanvasController = new StatisticCanvasController(
+        this._statisticContainer.getElement(),
+        this._filmsData
+    );
 
     this._init();
   }

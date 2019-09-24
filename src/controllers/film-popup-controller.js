@@ -18,9 +18,23 @@ export default class FilmPopupController {
 
     this._filmPopup = new FilmPopup(this._filmData, getTimeFromMinutes(this._filmData.filmInfo.runtime));
 
-    this._popupControlsController = new PopupControlsController(this._filmPopup.getElement().querySelector(`.form-details__top-container`), this._filmData, this._onControlsDataChanged.bind(this), this._onControlsDataChange.bind(this), this._onAppDataChange);
-    this._popupRateController = new PopupRateController(this._filmPopup.getElement().querySelector(`.form-details__middle-container`), this._filmData, this._onAppDataChange);
-    this._commentsController = new CommentsController(this._filmPopup.getElement().querySelector(`.film-details__inner`), this._commentEmotions, this._filmData.id, this._onAppDataChange, this._onCommentsFocusChange.bind(this));
+    this._popupControlsController = new PopupControlsController(
+        this._filmPopup.getElement().querySelector(`.form-details__top-container`),
+        this._filmData, this._onControlsDataChanged.bind(this),
+        this._onControlsDataChange.bind(this), this._onAppDataChange
+    );
+    this._popupRateController = new PopupRateController(
+        this._filmPopup.getElement().querySelector(`.form-details__middle-container`),
+        this._filmData,
+        this._onAppDataChange
+    );
+    this._commentsController = new CommentsController(
+        this._filmPopup.getElement().querySelector(`.film-details__inner`),
+        this._commentEmotions,
+        this._filmData.id,
+        this._onAppDataChange,
+        this._onCommentsFocusChange.bind(this)
+    );
 
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
 

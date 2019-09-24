@@ -6,6 +6,7 @@ export default class UserController {
   constructor(container, filmsData) {
     this._filmsData = filmsData;
     this._container = container;
+
     this._user = new User(getUserRate(this._filmsData));
 
     this._init();

@@ -6,6 +6,7 @@ export default class StatisticUserRateController {
   constructor(container, filmsData) {
     this._container = container;
     this._filmsData = filmsData;
+
     this._statisticUserRate = new StatisticUserRate(getUserRate(this._filmsData));
 
     this._init();

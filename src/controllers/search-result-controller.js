@@ -6,6 +6,7 @@ export default class SearchResultController {
   constructor(container) {
     this.filmsData = [];
     this._container = container;
+
     this._searchResult = new SearchResult();
   }
 

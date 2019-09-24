@@ -80,15 +80,6 @@ export const resetButtons = (element, className, defaultState = false) => {
   }
 };
 
-export const update = (element, remove = false, container = null, position = Position.AFTERBEGIN) => {
-  unrender(element.getElement());
-  element.removeElement();
-  if (remove) {
-    return;
-  }
-  render(container, element, position);
-};
-
 export const parseWatchingDate = (filmData) => {
   if (filmData.userDetails.watchingDate) {
     return moment(filmData.userDetails.watchingDate).toISOString();

@@ -22,10 +22,22 @@ export default class MainController {
     this._searchResultController = new SearchResultController(this._container);
     this._menuController = new MenuController(this._container, this._filmsData, this._onMenuDataChange.bind(this));
     this._sortController = new SortController(this._container, this._filmsData, this._onSortDataChange.bind(this));
-    this._filmsController = new FilmsController(this._filmsContent.getElement(), this._filmsData, this._onAppDataChange, this._onFilmClickChange.bind(this));
+    this._filmsController = new FilmsController(
+        this._filmsContent.getElement(),
+        this._filmsData, this._onAppDataChange,
+        this._onFilmClickChange.bind(this)
+    );
     this._statisticController = new StatisticController(this._container, this._filmsData);
-    this._filmsTopRatedController = new FilmsTopRatedController(this._filmsContent.getElement(), this._filmsData, this._onAppDataChange, this._onFilmClickChange.bind(this));
-    this._filmsMostCommentedController = new FilmsMostCommentedController(this._filmsContent.getElement(), this._filmsData, this._onAppDataChange, this._onFilmClickChange.bind(this));
+    this._filmsTopRatedController = new FilmsTopRatedController(
+        this._filmsContent.getElement(),
+        this._filmsData, this._onAppDataChange,
+        this._onFilmClickChange.bind(this)
+    );
+    this._filmsMostCommentedController = new FilmsMostCommentedController(
+        this._filmsContent.getElement(),
+        this._filmsData, this._onAppDataChange,
+        this._onFilmClickChange.bind(this)
+    );
     this._filmPopupController = null;
 
     this._changesCount = 0;

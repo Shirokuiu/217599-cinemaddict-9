@@ -1,7 +1,8 @@
 import PopupRate from "../components/popup-rate";
 
-import {render, unrender} from "../utils";
 import FilmModel from "../models/film-model";
+
+import {render, unrender} from "../utils";
 
 export default class PopupRateController {
   constructor(container, filmData, onAppDataChange) {

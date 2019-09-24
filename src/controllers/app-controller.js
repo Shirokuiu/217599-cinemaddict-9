@@ -2,10 +2,11 @@ import HeaderController from "./header-controller";
 import MainController from "./main-controller";
 import FooterController from "./footer-controller";
 
+import NoResult from "../components/no-result";
+
 import {AppSettings, render, setNoResultText, unrender} from "../utils";
 
 import API from "../api/api";
-import NoResult from "../components/no-result";
 
 export default class AppController {
   constructor() {

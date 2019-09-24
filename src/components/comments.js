@@ -5,8 +5,8 @@ import moment from "moment";
 export default class Comments extends Component {
   constructor(commentsData, commentEmotions) {
     super();
-    this._commentsData = commentsData ? commentsData : [];
-    this._commentEmotions = commentEmotions ? commentEmotions : [];
+    this._commentsData = commentsData;
+    this._commentEmotions = commentEmotions;
   }
 
   getTemplate() {

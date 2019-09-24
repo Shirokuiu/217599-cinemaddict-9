@@ -1,11 +1,11 @@
 import CommentsContainer from "../components/comments-container";
 import Comments from "../components/comments";
 
-import {AppSettings, render, unrender} from "../utils";
+import LocalCommentModel from "../models/local-comment-model";
 
 import API from "../api/api";
 
-import LocalCommentModel from "../models/local-comment-model";
+import {AppSettings, render, unrender} from "../utils";
 
 import moment from "moment";
 import DOMPurify from "dompurify";

@@ -59,7 +59,13 @@ export default class FilmsMostCommentedController {
   }
 
   _renderFilm(container, filmsData) {
-    const movieController = new MovieController(container, filmsData, this._onAppDataChange, `widget`, this._onFilmClickChange);
+    const movieController = new MovieController(
+        container,
+        filmsData,
+        this._onAppDataChange,
+        `widget`,
+        this._onFilmClickChange
+    );
 
     movieController.init();
   }
