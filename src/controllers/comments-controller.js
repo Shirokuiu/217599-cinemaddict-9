@@ -8,6 +8,7 @@ import API from "../api/api";
 import LocalCommentModel from "../models/local-comment-model";
 
 import moment from "moment";
+import DOMPurify from "dompurify";
 
 export default class CommentsController {
   constructor(container, commentEmotions, filmId, onAppDataChange, onCommentsFocusChange) {
@@ -75,7 +76,7 @@ export default class CommentsController {
       }
       const localComment = new LocalCommentModel({
         id: this._filmId,
-        comment: evt.target.value,
+        comment: DOMPurify.sanitize(evt.target.value),
         date: moment(Date.now()).toISOString(),
         emotion: img.alt,
       });
