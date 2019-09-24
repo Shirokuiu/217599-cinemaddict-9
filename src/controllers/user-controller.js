@@ -1,28 +1,35 @@
 import User from "../components/user";
 
-import {getUserRate, render, unrender, update} from "../utils";
+import {getUserRate, render, unrender} from "../utils";
 
 export default class UserController {
-  constructor(container) {
-    this._filmsData = [];
+  constructor(container, filmsData) {
+    this._filmsData = filmsData;
     this._container = container;
-    this._user = new User(``);
+    this._user = new User(getUserRate(this._filmsData));
+
+    this._init();
   }
 
-  show(filmsData) {
+  _init() {
+    render(this._container, this._user.getElement());
+  }
+
+  update(updatedData) {
     unrender(this._user.getElement());
     this._user.removeElement();
 
-    this._setUserData(filmsData);
+    this._updateData(this._container, updatedData);
   }
 
-  _setUserData(filmsData) {
-    this._filmsData = filmsData;
-    this._renderUser(this._container, this._filmsData);
+  _updateData(container, updatedData) {
+    this._filmsData = updatedData;
+
+    this._updateView(container, this._filmsData);
   }
 
-  _renderUser(container, filmsData) {
-    this._user = new User(getUserRate(filmsData));
+  _updateView(container, updatedData) {
+    this._user = new User(getUserRate(updatedData));
 
     render(container, this._user.getElement());
   }

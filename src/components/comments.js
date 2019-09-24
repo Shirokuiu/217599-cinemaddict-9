@@ -16,7 +16,7 @@ export default class Comments extends Component {
         </h3>
 
         <ul class="film-details__comments-list">
-          ${this._commentsData.map(({emotion, comment, author, date}) => `<li class="film-details__comment">
+          ${this._commentsData.map(({id, emotion, comment, author, date}) => `<li class="film-details__comment">
             <span class="film-details__comment-emoji">
               <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji">
             </span>
@@ -25,7 +25,7 @@ export default class Comments extends Component {
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${author}</span>
                 <span class="film-details__comment-day">${moment(date).format(`YY/MM/DD HH:MM`)}</span>
-                <button class="film-details__comment-delete">Delete</button>
+                <button class="film-details__comment-delete" data-id="${id}">Delete</button>
               </p>
             </div>
           </li>`).join(``)}

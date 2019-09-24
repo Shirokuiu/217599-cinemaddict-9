@@ -1,6 +1,6 @@
 import SearchResult from "../components/search-result";
 
-import {Position, render, unrender, update} from "../utils";
+import {Position, render, unrender} from "../utils";
 
 export default class SearchResultController {
   constructor(container) {
@@ -12,6 +12,7 @@ export default class SearchResultController {
   show(filmsData) {
     unrender(this._searchResult.getElement());
     this._searchResult.removeElement();
+
     this._setSearchResultData(filmsData);
   }
 

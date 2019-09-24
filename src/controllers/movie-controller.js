@@ -1,14 +1,11 @@
-import FilmPopupController from "./film-popup-controller";
-
 import Film from "../components/film";
 
 import {AppSettings, getTimeFromMinutes, parseWatchingDate, render} from "../utils";
 
-import moment from "moment";
-
 export default class MovieController {
-  constructor(container, filmData, onAppDataChange, context, searchMode) {
+  constructor(container, filmData, onAppDataChange, context, onFilmClickChange, searchMode) {
     this._onAppDataChange = onAppDataChange;
+    this._onFilmClickChange = onFilmClickChange;
     this._descriptionLength = AppSettings.PREVIEW_DESCRIPTION_LENGTH;
     this._filmData = filmData;
     this._container = container;
@@ -16,7 +13,6 @@ export default class MovieController {
     this._searchMode = searchMode;
 
     this._film = new Film(this._filmData, this._descriptionLength, getTimeFromMinutes(this._filmData.filmInfo.runtime));
-    this._filmPopupController = new FilmPopupController(onAppDataChange);
   }
 
   init() {
@@ -26,14 +22,10 @@ export default class MovieController {
     [...this._film.getElement().querySelectorAll(`.film-card__poster, .film-card__title, .film-card__comments`)]
       .forEach((item) => item.addEventListener(`click`, () => {
         document.body.classList.add(`hide-overflow`);
-        this._filmPopupController.show(this._filmData);
+        this._onFilmClickChange(this._filmData);
       }));
 
     render(this._container, this._film.getElement());
-  }
-
-  updateComments(updatedComments) {
-    this._filmPopupController.updateComments(updatedComments);
   }
 
   _onFilmControlsClick(evt) {

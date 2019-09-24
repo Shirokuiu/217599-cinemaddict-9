@@ -1,119 +1,114 @@
+import CommentsContainer from "../components/comments-container";
 import Comments from "../components/comments";
 
 import {AppSettings, render, unrender} from "../utils";
 
-import moment from "moment";
-import LocalCommentModel from "../models/local-comment-model";
-import CommentsContainer from "../components/comments-container";
 import API from "../api/api";
 
+import LocalCommentModel from "../models/local-comment-model";
+
+import moment from "moment";
+
 export default class CommentsController {
-  constructor(container, commentEmotions, filmId, onAppDataChange) {
+  constructor(container, commentEmotions, filmId, onAppDataChange, onCommentsFocusChange) {
     this._onAppDataChange = onAppDataChange;
+    this._onCommentsFocusChange = onCommentsFocusChange;
     this._api = new API({endPoint: AppSettings.END_POINT, authorization: AppSettings.AUTHORIZATION});
     this._commentsData = [];
     this._container = container;
     this._commentEmotions = commentEmotions;
     this._filmId = +filmId;
+
     this._commentsContainer = new CommentsContainer();
+    this._comments = null;
+
+    this._init();
   }
 
-  init() {
+  _init() {
     render(this._container, this._commentsContainer.getElement());
-    this._api.getComments(this._filmId)
-      .then((comments) => {
-        this._commentsData = comments;
-
-
-        this._renderComments(this._commentsContainer.getElement(), this._commentsData);
-        // filmPopup.getElement().querySelector(`.film-details__comment-input`)
-        //   .addEventListener(`focus`, () => {
-        //     document.removeEventListener(`keydown`, onEscKeyDown);
-        //   });
-        // filmPopup.getElement().querySelector(`.film-details__comment-input`)
-        //   .addEventListener(`blur`, () => {
-        //     document.addEventListener(`keydown`, onEscKeyDown);
-        //   });
-      });
   }
 
-  show(commentsData) {
-    if (commentsData !== this._commentsData) {
-      // unrender(this._commentsContainer.getElement());
-      // this._commentsContainer.removeElement();
-      // render(this._container, this._commentsContainer.getElement());
+  update(updatedData) {
+    unrender(this._commentsContainer.getElement());
+    this._commentsContainer.removeElement();
 
-      this._setComments(commentsData);
+    this._updateData(this._container, updatedData);
+  }
+
+  _updateData(container, updatedData) {
+    this._commentsData = updatedData;
+
+    this._updateView(container, this._commentsData);
+  }
+
+  _updateView(container, updatedData) {
+    this._commentsContainer = new CommentsContainer();
+    this._comments = new Comments(updatedData, this._commentEmotions);
+
+    render(container, this._commentsContainer.getElement());
+    render(this._commentsContainer.getElement(), this._comments.getElement());
+
+    this._comments.getElement().querySelector(`.film-details__comment-input`).addEventListener(`focus`, () => {
+      this._onCommentsFocusChange(true);
+    });
+    this._comments.getElement().querySelector(`.film-details__comment-input`).addEventListener(`blur`, () => {
+      this._onCommentsFocusChange(false);
+    });
+    this._comments.getElement().querySelector(`.film-details__comment-input`)
+      .addEventListener(`keydown`, this._addComment.bind(this));
+    this._comments.getElement().querySelector(`.film-details__emoji-list`)
+      .addEventListener(`click`, this._onSelectEmojiClick.bind(this));
+    [...this._comments.getElement().querySelectorAll(`.film-details__comment-delete`)].forEach((btn) => {
+      btn.addEventListener(`click`, (evt) => {
+        this._deleteComment(evt);
+      });
+    });
+  }
+
+  _addComment(evt) {
+    const img = this._comments.getElement().querySelector(`.film-details__add-emoji-label img`);
+
+    if (evt.metaKey && evt.key === `Enter`) {
+      if (evt.target.value === ``) {
+        return;
+      }
+      const localComment = new LocalCommentModel({
+        id: this._filmId,
+        comment: evt.target.value,
+        date: moment(Date.now()).toISOString(),
+        emotion: img.alt,
+      });
+      this._onAppDataChange(`add-comment`, localComment);
+      this._blockComments();
     }
   }
 
-  _setComments(commentsData) {
-    this._commentsData = commentsData;
+  _deleteComment(evt) {
+    evt.preventDefault();
 
-    this._renderComments(this._commentsContainer.getElement(), this._commentsData);
+    this._onAppDataChange(`delete-comment`, +evt.target.dataset.id, this._filmId);
+    this._blockDeleteBtn(evt.target);
   }
 
-  _renderComments(container, commentsData) {
-    this._comments = new Comments(commentsData, this._commentEmotions);
+  _onSelectEmojiClick(evt) {
+    const img = this._comments.getElement().querySelector(`.film-details__add-emoji-label img`);
 
-    const addComment = (evt) => {
-      const img = this._comments.getElement().querySelector(`.film-details__add-emoji-label img`);
-
-      if (evt.metaKey && evt.key === `Enter`) {
-        if (evt.target.value === ``) {
-          return;
-        }
-        const localComment = new LocalCommentModel({
-          id: this._filmId,
-          comment: evt.target.value,
-          date: moment(Date.now()).toISOString(),
-          emotion: img.alt,
-        });
-        // commentsContainer.getElement().querySelector(`.film-details__comments-list`)
-        //   .insertAdjacentHTML(`beforeend`, `<li class="film-details__comment">
-        //     <span class="film-details__comment-emoji">
-        //       <img src="${img.src}" width="55" height="55" alt="emoji">
-        //     </span>
-        //     <div>
-        //       <p class="film-details__comment-text">${evt.target.value}</p>
-        //       <p class="film-details__comment-info">
-        //         <span class="film-details__comment-author"></span>
-        //         <span class="film-details__comment-day">${moment(Date.now()).format(`YY/MM/DD HH:MM`)}</span>
-        //         <button class="film-details__comment-delete">Delete</button>
-        //       </p>
-        //     </div>
-        //   </li>`);
-        // evt.target.value = ``;
-        // commentsContainer.getElement().querySelector(`.film-details__comments-count`)
-        //   .textContent = commentsContainer.getElement().querySelectorAll(`.film-details__comments-list li`).length
-        this._onAppDataChange(`add-comment`, localComment);
-      }
-    };
-
-    const onSelectEmojiClick = (evt) => {
-      const img = this._comments.getElement().querySelector(`.film-details__add-emoji-label img`);
-
-      if (evt.target.tagName.toLowerCase() !== `input`) {
-        return;
-      }
-      img.classList.remove(`visually-hidden`);
-      img.src = `./images/emoji/${evt.target.value}.png`;
-      img.alt = `${evt.target.value}`;
-    };
-
-    this._comments.getElement().querySelector(`.film-details__comment-input`)
-      .addEventListener('keydown', addComment);
-    this._comments.getElement().querySelector(`.film-details__emoji-list`)
-      .addEventListener('click', onSelectEmojiClick);
-
-    render(container, this._comments.getElement());
+    if (evt.target.tagName.toLowerCase() !== `input`) {
+      return;
+    }
+    img.classList.remove(`visually-hidden`);
+    img.src = `./images/emoji/${evt.target.value}.png`;
+    img.alt = `${evt.target.value}`;
   }
 
-  // _makeLocalComment({comment, date, emotion}) {
-  //   return {
-  //     comment: comment,
-  //     date: date,
-  //     emotion: emotion
-  //   }
-  // }
+  _blockComments() {
+    this._commentsContainer.getElement().style.opacity = `0.5`;
+    this._comments.getElement().querySelector(`.film-details__comment-input`).disabled = true;
+  }
+
+  _blockDeleteBtn(btn) {
+    btn.disabled = true;
+    btn.textContent = `Deleting…`;
+  }
 }

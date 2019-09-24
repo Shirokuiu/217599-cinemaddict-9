@@ -5,11 +5,11 @@ import Search from "../components/search";
 import {render} from "../utils";
 
 export default class HeaderController {
-  constructor(onSearchDataChange) {
+  constructor(filmsData, onSearchDataChange) {
     this._container = document.querySelector(`.header`);
-    this._filmsData = [];
+    this._filmsData = filmsData;
     this._search = new Search();
-    this._userController = new UserController(this._container);
+    this._userController = null;
     this._onSearchDataChange = onSearchDataChange;
     this._searchingMode = false;
 
@@ -23,25 +23,16 @@ export default class HeaderController {
       .addEventListener(`input`, this._onSearchInput.bind(this));
     this._search.getElement().querySelector(`.search__reset`)
       .addEventListener(`click`, this._onBtnResetClick.bind(this));
+
+    this._renderUser(this._container, this._filmsData);
   }
 
-  show(filmsData) {
-    if (filmsData !== this._filmsData) {
-      this._setFilmsData(filmsData);
-    }
+  updateUserData(updateFilms) {
+    this._userController.update(updateFilms);
   }
 
-  _setFilmsData(filmsData) {
-    this._filmsData = filmsData;
-    this._renderUser(filmsData);
-  }
-
-  updateUserData() {
-    this._renderUser(this._filmsData);
-  }
-
-  _renderUser(filmsData) {
-    this._userController.show(filmsData);
+  _renderUser(container, filmsData) {
+    this._userController = new UserController(container, filmsData);
   }
 
   _onSearchInput(evt) {

@@ -11,6 +11,6 @@ export default class LocalCommentModel {
       'comment': this.comment,
       'date': this.date,
       'emotion': this.emotion,
-    }
+    };
   }
 }

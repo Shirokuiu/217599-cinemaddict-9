@@ -1,5 +1,3 @@
-import moment from "moment";
-
 export default class FilmModel {
   constructor(data) {
     this.id = data[`id`];

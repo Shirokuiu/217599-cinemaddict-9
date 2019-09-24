@@ -1,29 +1,29 @@
 import Component from "./component";
 
 import moment from "moment";
-import {AppSettings} from "../utils";
 
 export default class FilmPopup extends Component {
   constructor({filmInfo, userDetails}, runtime) {
     super();
-    this._poster = filmInfo ? filmInfo.poster : ``;
-    this._ageRating = filmInfo ? filmInfo.ageRating: ``;
-    this._title = filmInfo ? filmInfo.title: ``;
-    this._alternativeTitle = filmInfo ? filmInfo.alternativeTitle: ``;
-    this._totalRating = filmInfo ? filmInfo.totalRating: ``;
-    this._director = filmInfo ? filmInfo.director: ``;
-    this._writers = filmInfo ? filmInfo.writers: ``;
-    this._actors = filmInfo ? filmInfo.actors: ``;
-    this._releaseDate = filmInfo ? filmInfo.release.date: ``;
+    this._poster = filmInfo.poster;
+    this._ageRating = filmInfo.ageRating;
+    this._title = filmInfo.title;
+    this._alternativeTitle = filmInfo.alternativeTitle;
+    this._totalRating = filmInfo.totalRating;
+    this._director = filmInfo.director;
+    this._writers = filmInfo.writers;
+    this._actors = filmInfo.actors;
+    this._releaseDate = filmInfo.release.date;
     this._runtime = runtime;
-    this._releaseCountry = filmInfo ? filmInfo.release.releaseCountry: ``;
-    this._genre = filmInfo ? filmInfo.genre: ``;
-    this._description = filmInfo ? filmInfo.description: ``;
-    this._alreadyWatched = userDetails ? userDetails.alreadyWatched: ``;
+    this._releaseCountry = filmInfo.release.releaseCountry;
+    this._genre = filmInfo.genre;
+    this._description = filmInfo.description;
+    this._alreadyWatched = userDetails.alreadyWatched;
   }
 
   getTemplate() {
-    return `<form class="film-details__inner" action="" method="get">
+    return `<section class="film-details">
+      <form class="film-details__inner" action="" method="get">
     <div class="form-details__top-container">
       <div class="film-details__close">
         <button class="film-details__close-btn" type="button">close</button>
@@ -89,6 +89,7 @@ export default class FilmPopup extends Component {
       <!-- popup-rate !-->
     </div>
     <!-- comments-container !-->
-  </form>`;
+  </form>
+    </section>`;
   }
 }

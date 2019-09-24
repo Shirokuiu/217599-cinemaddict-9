@@ -5,8 +5,8 @@ import {AppSettings} from "../utils";
 export default class PopupRate extends Component {
   constructor(filmData) {
     super();
-    this._personalRating = filmData ?  filmData.userDetails.personalRating : ``;
-    this._poster = filmData ? filmData.filmInfo.poster : ``;
+    this._personalRating = filmData.userDetails.personalRating;
+    this._poster = filmData.filmInfo.poster;
   }
 
   getTemplate() {

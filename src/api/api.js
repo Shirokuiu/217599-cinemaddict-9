@@ -56,7 +56,14 @@ export default class API {
       body: JSON.stringify(data),
       headers: new Headers({'Content-Type': `application/json`})
     })
-      .then(toJSON)
+      .then(toJSON);
+  }
+
+  deleteComment(id) {
+    return this._load({
+      url: `comments/${id}`,
+      method: Method.DELETE
+    });
   }
 
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {

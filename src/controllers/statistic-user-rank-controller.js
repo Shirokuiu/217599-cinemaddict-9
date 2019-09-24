@@ -3,10 +3,10 @@ import StatisticUserRate from "../components/statistic-user-rate";
 import {getUserRate, Position, render, unrender} from "../utils";
 
 export default class StatisticUserRateController {
-  constructor(container) {
+  constructor(container, filmsData) {
     this._container = container;
-    this._filmsData = [];
-    this._statisticUserRate = new StatisticUserRate(``);
+    this._filmsData = filmsData;
+    this._statisticUserRate = new StatisticUserRate(getUserRate(this._filmsData));
 
     this._init();
   }
@@ -15,22 +15,21 @@ export default class StatisticUserRateController {
     render(this._container, this._statisticUserRate.getElement());
   }
 
-  show(filmsData) {
-    if (filmsData !== this._filmsData) {
-      unrender(this._statisticUserRate.getElement());
-      this._statisticUserRate.removeElement();
+  update(updatedData) {
+    unrender(this._statisticUserRate.getElement());
+    this._statisticUserRate.removeElement();
 
-      this._setUserRateData(filmsData);
-    }
+    this._updateData(this._container, updatedData);
   }
 
-  _setUserRateData(filmsData) {
-    this._filmsData = filmsData;
-    this._renderStatisticUserRate(this._container, filmsData);
+  _updateData(container, updatedData) {
+    this._filmsData = updatedData;
+
+    this._updateView(container, this._filmsData);
   }
 
-  _renderStatisticUserRate(container, filmsData) {
-    this._statisticUserRate = new StatisticUserRate(getUserRate(filmsData));
+  _updateView(container, updatedData) {
+    this._statisticUserRate = new StatisticUserRate(getUserRate(updatedData));
 
     render(container, this._statisticUserRate.getElement(), Position.AFTERBEGIN);
   }

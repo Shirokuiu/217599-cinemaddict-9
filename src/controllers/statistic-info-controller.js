@@ -3,28 +3,34 @@ import StatisticInfo from "../components/statistic-info";
 import {calculateGenres, getTimeFromMinutes, render, unrender} from "../utils";
 
 export default class StatisticInfoController {
-  constructor(container) {
+  constructor(container, filmsData) {
     this._container = container;
-    this._filmsData = [];
-    this._statisticInfo = new StatisticInfo({});
-  }
-
-  show(filmsData) {
-    if (filmsData !== this._filmsData) {
-      unrender(this._statisticInfo.getElement());
-      this._statisticInfo.removeElement();
-
-      this._setStatisticInfo(filmsData);
-    }
-  }
-
-  _setStatisticInfo(filmsData) {
     this._filmsData = filmsData;
-    this._renderStatisticInfo(this._container, filmsData);
+
+    this._statisticInfo = new StatisticInfo(this._getStatistic(this._filmsData));
+
+    this._init();
   }
 
-  _renderStatisticInfo(container, filmsData) {
-    this._statisticInfo = new StatisticInfo(this._getStatistic(filmsData));
+  _init() {
+    render(this._container, this._statisticInfo.getElement());
+  }
+
+  update(updatedData) {
+    unrender(this._statisticInfo.getElement());
+    this._statisticInfo.removeElement();
+
+    this._updateData(this._container, updatedData);
+  }
+
+  _updateData(container, updatedData) {
+    this._filmsData = updatedData;
+
+    this._updateView(container, this._filmsData);
+  }
+
+  _updateView(container, updatedData) {
+    this._statisticInfo = new StatisticInfo(this._getStatistic(updatedData));
 
     render(container, this._statisticInfo.getElement());
   }

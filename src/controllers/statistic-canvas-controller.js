@@ -1,42 +1,31 @@
 import StatisticCanvas from "../components/statistic-canvas";
 
-import {calculateGenres, render, unrender} from "../utils";
+import {calculateGenres, render} from "../utils";
 
 import Chart from "chart.js";
 import ChartPlugin from "chartjs-plugin-datalabels";
 
 export default class StatisticCanvasController {
-  constructor(container) {
-    this.filmsData = [];
+  constructor(container, filmsData) {
+    this.filmsData = filmsData;
     this._container = container;
     this._statisticCanvas = new StatisticCanvas();
+    this._genres = calculateGenres(this.filmsData);
     this._chart = null;
+
+    this._init();
   }
 
-  show(filmsData) {
-    if (filmsData !== this.filmsData) {
-      unrender(this._statisticCanvas.getElement());
-      this._statisticCanvas.removeElement();
-      this._setStatisticCanvasData(filmsData);
-    }
-  }
-
-  _setStatisticCanvasData(filmsData) {
-    this.filmsData = filmsData;
-    this._renderStatisticCanvas(this._container, filmsData);
-  }
-
-  _renderStatisticCanvas(cotainer, filmsData) {
-    this._statisticCanvas = new StatisticCanvas();
-    const genres = calculateGenres(filmsData);
+  _init() {
+    render(this._container, this._statisticCanvas.getElement());
 
     this._chart = new Chart(this._statisticCanvas.getElement().querySelector(`.statistic__chart`), {
       plugins: [ChartPlugin],
       type: `horizontalBar`,
       data: {
-        labels: [...Object.keys(genres)],
+        labels: [...Object.keys(this._genres)],
         datasets: [{
-          data: [...Object.values(genres)],
+          data: [...Object.values(this._genres)],
           backgroundColor: `#ffe800`
         }]
       },
@@ -79,7 +68,14 @@ export default class StatisticCanvasController {
         },
       }
     });
+  }
 
-    render(cotainer, this._statisticCanvas.getElement());
+  refresh(updatedData) {
+    this.filmsData = updatedData;
+    this._genres = calculateGenres(this.filmsData);
+
+    this._chart.data.labels = [...Object.keys(this._genres)];
+    this._chart.data.datasets[0].data = [...Object.values(this._genres)];
+    this._chart.update();
   }
 }

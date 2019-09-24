@@ -7,9 +7,10 @@ import LoadMore from "../components/load-more";
 import {AppSettings, Position, render, setNoResultText, unrender} from "../utils";
 
 export default class FilmsController {
-  constructor(container, onAppDataChange) {
+  constructor(container, filmsData, onAppDataChange, onFilmClickChange) {
     this._onAppDataChange = onAppDataChange;
-    this._filmsData = [];
+    this._onFilmClickChange = onFilmClickChange;
+    this._filmsData = filmsData;
     this._container = container;
     this._startLoad = 0;
     this._loadedFilms = AppSettings.FILMS_TO_ROW;
@@ -17,30 +18,42 @@ export default class FilmsController {
     this._filmsList = new FilmsList();
     this._noResult = new NoResult();
     this._loadMore = new LoadMore();
+
+    this._init();
   }
 
-  show(filmsData) {
-    if (filmsData !== this._filmsData) {
-      this._updateFilmList();
-      this._setFilmsData(filmsData);
-    }
+  _init() {
+    render(this._container, this._filmsList.getElement());
 
-    if (filmsData.length > AppSettings.FILMS_TO_ROW) {
-      render(this._filmsList.getElement(), this._loadMore.getElement());
-      this._loadMore.getElement().addEventListener(`click`, this._onLoadMoreClick.bind(this));
-    }
+    this._setFilms(this._filmsData);
+    this._checkFilmsToRow();
+  }
 
-    if (!filmsData.length) {
-      this._filmsList.getElement().querySelector(`.films-list__container`).classList.add(`visually-hidden`);
-      this._renderNoResult(false, `no-result`);
-    } else {
-      this._renderNoResult(true, `no-result`);
-      this._filmsList.getElement().querySelector(`.films-list__container`).classList.remove(`visually-hidden`);
-    }
+  update(updatedData) {
+    unrender(this._filmsList.getElement());
+    this._filmsList.removeElement();
+
+    this._updateData(this._container, updatedData);
+  }
+
+  _updateData(container, updatedData) {
+    this._filmsData = updatedData;
+
+    this._updateView(container, this._filmsData);
+  }
+
+  _updateView(container, updatedData) {
+    this._filmsList = new FilmsList();
+
+    render(container, this._filmsList.getElement(), Position.AFTERBEGIN);
+    this._checkFilmsToRow();
+
+    this._setFilms(updatedData);
   }
 
   hide() {
-    this._updateFilmList(true);
+    unrender(this._filmsList.getElement());
+    this._filmsList.removeElement();
   }
 
   onMenuDataChange() {
@@ -54,42 +67,22 @@ export default class FilmsController {
   searchMode(status, filmsData) {
     if (status) {
       this._updateLoadMoreButton(status);
-      this._updateFilmList();
-      filmsData.forEach((film) => this._renderFilm(this._filmsList
-        .getElement().querySelector(`.films-list__container`), film, true));
+      this.update(filmsData);
       if (!filmsData.length) {
         this._renderNoResult(false, `no-result`);
       }
     }
   }
 
-  updateComments(updatedComments) {
-    this._movieController.updateComments(updatedComments);
-  }
-
-  _setFilmsData(filmsData) {
-    this._filmsData = filmsData;
+  _setFilms(filmsData) {
     filmsData.slice(this._startLoad, AppSettings.FILMS_TO_ROW).forEach((film) => this._renderFilm(this._filmsList
       .getElement().querySelector(`.films-list__container`), film));
   }
 
   _renderFilm(container, filmData, searchMode) {
-    this._movieController = new MovieController(container, filmData, this._onAppDataChange, `films-list`, searchMode);
+    const movieController = new MovieController(container, filmData, this._onAppDataChange, `films-list`, this._onFilmClickChange, searchMode);
 
-    this._movieController.init();
-  }
-
-  _onLoadMoreClick() {
-    const copyData = this._filmsData.slice();
-
-    copyData.slice(this._loadedFilms, this._loadedFilms + AppSettings.FILMS_TO_ROW)
-      .forEach((film) => this._renderFilm(this._filmsList
-      .getElement().querySelector(`.films-list__container`), film));
-
-    this._loadedFilms += AppSettings.FILMS_TO_ROW;
-    if (this._filmsData.length <= this._loadedFilms) {
-      this._updateLoadMoreButton(true);
-    }
+    movieController.init();
   }
 
   _updateLoadMoreButton(remove = false) {
@@ -102,13 +95,19 @@ export default class FilmsController {
     render(this._filmsList.getElement(), this._loadMore.getElement());
   }
 
-  _updateFilmList(remove = false) {
-    unrender(this._filmsList.getElement());
-    this._filmsList.removeElement();
-    if (remove) {
-      return;
+  _checkFilmsToRow() {
+    if (this._filmsData.length > AppSettings.FILMS_TO_ROW) {
+      render(this._filmsList.getElement(), this._loadMore.getElement());
+      this._loadMore.getElement().addEventListener(`click`, this._onLoadMoreClick.bind(this));
     }
-    render(this._container, this._filmsList.getElement(), Position.AFTERBEGIN);
+
+    if (!this._filmsData.length) {
+      this._filmsList.getElement().querySelector(`.films-list__container`).classList.add(`visually-hidden`);
+      this._renderNoResult(false, `no-result`);
+    } else {
+      this._renderNoResult(true, `no-result`);
+      this._filmsList.getElement().querySelector(`.films-list__container`).classList.remove(`visually-hidden`);
+    }
   }
 
   _renderNoResult(remove = false, state = `no-result`) {
@@ -119,5 +118,18 @@ export default class FilmsController {
     }
     this._noResult = new NoResult(setNoResultText(state));
     render(this._filmsList.getElement(), this._noResult.getElement());
+  }
+
+  _onLoadMoreClick() {
+    const copyData = this._filmsData.slice();
+
+    copyData.slice(this._loadedFilms, this._loadedFilms + AppSettings.FILMS_TO_ROW)
+      .forEach((film) => this._renderFilm(this._filmsList
+        .getElement().querySelector(`.films-list__container`), film));
+
+    this._loadedFilms += AppSettings.FILMS_TO_ROW;
+    if (this._filmsData.length <= this._loadedFilms) {
+      this._updateLoadMoreButton(true);
+    }
   }
 }

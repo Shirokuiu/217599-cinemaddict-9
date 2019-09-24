@@ -3,33 +3,48 @@ import Menu from "../components/menu";
 import {Position, render, resetButtons, unrender} from "../utils";
 
 export default class MenuController {
-  constructor(container, onMenuDataChange) {
+  constructor(container, filmsData, onMenuDataChange) {
     this._container = container;
     this._onMenuDataChange = onMenuDataChange;
-    this._filmsData = [];
+    this._filmsData = filmsData;
 
-    this._menu = new Menu({});
+    this._menu = new Menu(this._getMenuCount(this._filmsData));
+
+    this._init();
   }
 
-  show(filmsData) {
-    unrender(this._menu.getElement());
-    this._menu.removeElement();
+  _init() {
+    render(this._container, this._menu.getElement());
 
-    this._setMenuData(filmsData);
+    this._menu.getElement().addEventListener(`click`, this._onMenuClick.bind(this));
+  }
+
+  show() {
+    if (this._menu.getElement().classList.contains(`visually-hidden`)) {
+      this._menu.getElement().classList.remove(`visually-hidden`);
+    }
   }
 
   hide() {
+    this._menu.getElement().classList.add(`visually-hidden`);
+    resetButtons(this._menu, `main-navigation__item`, true);
+  }
+
+  update(updatedData) {
     unrender(this._menu.getElement());
     this._menu.removeElement();
+
+    this._updateData(this._container, updatedData);
   }
 
-  _setMenuData(filmsData) {
-    this._filmsData = filmsData;
-    this._renderMenu(this._container, this._filmsData);
+  _updateData(container, updatedData) {
+    this._filmsData = updatedData;
+
+    this._updateView(container, this._filmsData);
   }
 
-  _renderMenu(container, filmsData) {
-    this._menu = new Menu(this._getMenuCount(filmsData));
+  _updateView(container, updatedData) {
+    this._menu = new Menu(this._getMenuCount(updatedData));
 
     this._menu.getElement().addEventListener(`click`, this._onMenuClick.bind(this));
 
