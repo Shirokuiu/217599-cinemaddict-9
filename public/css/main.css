@@ -870,6 +870,8 @@ button {
   color: #212126;
 }
 .film-details__comment-label {
+  position: relative;
+
   width: 100%;
 }
 .film-details__emoji-list {
@@ -1077,4 +1079,16 @@ button {
   min-height: 300px;
   padding-top: 50px;
   padding-bottom: 50px;
+}
+
+.film-details__error-message {
+  font-size: 16px;
+  line-height: 20px;
+  text-align: center;
+  color: red;
+}
+
+.film-details__error-message--textarea {
+  position: absolute;
+  top: -50%;
 }

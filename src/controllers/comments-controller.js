@@ -57,7 +57,7 @@ export default class CommentsController {
       this._onCommentsFocusChange(false);
     });
     this._comments.getElement().querySelector(`.film-details__comment-input`)
-      .addEventListener(`keydown`, this._addComment.bind(this));
+      .addEventListener(`keydown`, this._onAddCommentKeysPress.bind(this));
     this._comments.getElement().querySelector(`.film-details__emoji-list`)
       .addEventListener(`click`, this._onSelectEmojiClick.bind(this));
     [...this._comments.getElement().querySelectorAll(`.film-details__comment-delete`)].forEach((btn) => {
@@ -67,13 +67,22 @@ export default class CommentsController {
     });
   }
 
-  _addComment(evt) {
+  _onAddCommentKeysPress(evt) {
     const img = this._comments.getElement().querySelector(`.film-details__add-emoji-label img`);
 
     if (evt.metaKey && evt.key === `Enter`) {
-      if (evt.target.value === ``) {
+      if (evt.target.value === `` && img.alt !== ``) {
+        this._comments.getElement().querySelector(`.film-details__error-message--textarea`)
+          .classList.remove(`visually-hidden`);
         return;
       }
+
+      if (img.alt === ``) {
+        this._comments.getElement().querySelector(`.film-details__error-message--img`)
+          .classList.remove(`visually-hidden`);
+        return;
+      }
+
       const localComment = new LocalCommentModel({
         id: this._filmId,
         comment: DOMPurify.sanitize(evt.target.value),
@@ -98,9 +107,12 @@ export default class CommentsController {
     if (evt.target.tagName.toLowerCase() !== `input`) {
       return;
     }
+
     img.classList.remove(`visually-hidden`);
     img.src = `./images/emoji/${evt.target.value}.png`;
     img.alt = `${evt.target.value}`;
+    this._comments.getElement().querySelector(`.film-details__error-message--img`)
+      .classList.add(`visually-hidden`);
   }
 
   _blockComments() {

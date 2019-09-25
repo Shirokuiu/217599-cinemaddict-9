@@ -40,29 +40,36 @@ export default class StatisticInfoController {
   }
 
   _calculateStatistic(filmsData) {
-    const watched = filmsData.filter(({userDetails}) => userDetails.alreadyWatched);
-    const duration = watched.map(({filmInfo}) => filmInfo.runtime)
-      .reduce((first, second) => first + second);
-    const topGenre = this._getTopGenre(watched);
+    if (filmsData.length) {
+      const watched = filmsData.filter(({userDetails}) => userDetails.alreadyWatched);
+      const duration = watched.map(({filmInfo}) => filmInfo.runtime)
+        .reduce((first, second) => first + second);
 
-    return {
-      watched: watched.length,
-      totalDuration: {
-        hours: parseInt(getTimeFromMinutes(duration).split(` `)[0], 10),
-        minutes: parseInt(getTimeFromMinutes(duration).split(` `)[1], 10),
-      },
-      topGenre,
-    };
+      const topGenre = this._getTopGenre(watched);
+
+      return {
+        watched: watched.length,
+        totalDuration: {
+          hours: parseInt(getTimeFromMinutes(duration).split(` `)[0], 10),
+          minutes: parseInt(getTimeFromMinutes(duration).split(` `)[1], 10),
+        },
+        topGenre,
+      };
+    }
+
+    return 0;
   }
 
   _getTopGenre(filmsWatched) {
     let maxVal;
     let maxKey;
 
-    for (let [key, value] of Object.entries(calculateGenres(filmsWatched))) {
-      if (!maxVal || value > maxVal) {
-        maxVal = value;
-        maxKey = key;
+    if (filmsWatched.length) {
+      for (let [key, value] of Object.entries(calculateGenres(filmsWatched))) {
+        if (!maxVal || value > maxVal) {
+          maxVal = value;
+          maxKey = key;
+        }
       }
     }
 

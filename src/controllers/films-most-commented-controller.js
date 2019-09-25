@@ -17,9 +17,11 @@ export default class FilmsMostCommentedController {
   }
 
   _init() {
-    render(this._container, this._filmListCommented.getElement());
+    if (this._calculateComments(this._filmsData)) {
+      render(this._container, this._filmListCommented.getElement());
 
-    this._setTopCommented(this._filmsData);
+      this._setTopCommented(this._filmsData);
+    }
   }
 
   update(updatedData) {
@@ -68,5 +70,9 @@ export default class FilmsMostCommentedController {
     );
 
     movieController.init();
+  }
+
+  _calculateComments(filmsData) {
+    return filmsData.map(({comments}) => comments).map((it) => it.length).reduce((a, b) => a + b);
   }
 }

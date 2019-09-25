@@ -42,18 +42,22 @@ export const getTimeFromMinutes = (mins) => {
 };
 
 export const calculateGenres = (filmsWatched) => {
-  return filmsWatched.map((film) => film.filmInfo.genre)
-    .reduce((first, second) => first.concat(second))
-    .map((name) => {
-      return {
-        count: 1,
-        name
-      };
-    })
-    .reduce((first, second) => {
-      first[second.name] = (first[second.name] || 0) + second.count;
-      return first;
-    }, {});
+  if (filmsWatched.length) {
+    return filmsWatched.map((film) => film.filmInfo.genre)
+      .reduce((first, second) => first.concat(second))
+      .map((name) => {
+        return {
+          count: 1,
+          name
+        };
+      })
+      .reduce((first, second) => {
+        first[second.name] = (first[second.name] || 0) + second.count;
+        return first;
+      }, {});
+  }
+
+  return 0;
 };
 
 export const setNoResultText = (state) => {
@@ -65,6 +69,9 @@ export const setNoResultText = (state) => {
       break;
     case `no-result`:
       resultText = `There is no movies for your request.`;
+      break;
+    case `empty`:
+      resultText = `There are no movies in our database`;
       break;
   }
   return resultText;
@@ -85,6 +92,17 @@ export const parseWatchingDate = (filmData) => {
     return moment(filmData.userDetails.watchingDate).toISOString();
   }
   return moment(Date.now()).toISOString();
+};
+
+export const debounce = (callback, delay) => {
+  let timerId;
+  return (...args) => {
+    timerId = timerId && clearTimeout(timerId);
+    timerId = setTimeout(
+        () => callback(...args),
+        delay
+    );
+  };
 };
 
 export const createElement = (template) => {

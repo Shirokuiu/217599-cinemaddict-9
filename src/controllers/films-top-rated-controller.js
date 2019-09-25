@@ -17,9 +17,11 @@ export default class FilmsTopRatedController {
   }
 
   _init() {
-    render(this._container, this._filmListRated.getElement());
+    if (this._calculateTotalRate(this._filmsData)) {
+      render(this._container, this._filmListRated.getElement());
 
-    this._setTopRated(this._filmsData);
+      this._setTopRated(this._filmsData);
+    }
   }
 
   update(updatedFilms) {
@@ -69,5 +71,9 @@ export default class FilmsTopRatedController {
     );
 
     movieController.init();
+  }
+
+  _calculateTotalRate(filmsData) {
+    return filmsData.map(({filmInfo}) => filmInfo.totalRating).reduce((a, b) => a + b);
   }
 }

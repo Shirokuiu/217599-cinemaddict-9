@@ -4,7 +4,7 @@ import FooterController from "./footer-controller";
 
 import NoResult from "../components/no-result";
 
-import {AppSettings, render, setNoResultText, unrender} from "../utils";
+import {AppSettings, debounce, render, setNoResultText, unrender} from "../utils";
 
 import API from "../api/api";
 
@@ -12,40 +12,44 @@ export default class AppController {
   constructor() {
     this._api = new API({endPoint: AppSettings.END_POINT, authorization: AppSettings.AUTHORIZATION});
 
-    this._noResult = new NoResult();
+    this._noResult = new NoResult(setNoResultText(`loading`));
 
     this._headerController = null;
     this._mainController = null;
     this._footerController = null;
+
+    this._debounce = debounce(this._debounceSearch.bind(this), 1000);
   }
 
   init() {
-    this._renderNoResult(false, `loading`, document.querySelector(`.main`));
+    render(document.querySelector(`main`), this._noResult.getElement());
 
     this._api.getFilms().then((films) => {
-      this._onLoadFilmsChange();
+      if (!films.length) {
+        unrender(this._noResult.getElement());
+        this._noResult.removeElement();
+
+        this._noResult = new NoResult(setNoResultText(`empty`));
+
+        render(document.querySelector(`main`), this._noResult.getElement());
+      } else {
+        unrender(this._noResult.getElement());
+        this._noResult.removeElement();
+      }
       this._headerController = new HeaderController(films, this._onSearchDataChange.bind(this));
-      this._mainController = new MainController(films, this._onAppDataChange.bind(this));
+      if (films.length) {
+        this._mainController = new MainController(films, this._onAppDataChange.bind(this));
+      }
       this._footerController = new FooterController(films);
     });
   }
 
-  _renderNoResult(remove = false, state = `no-result`, container) {
-    unrender(this._noResult.getElement());
-    this._noResult.removeElement();
-    if (remove) {
-      return;
-    }
-    this._noResult = new NoResult(setNoResultText(state));
-    render(container, this._noResult.getElement());
-  }
-
-  _onLoadFilmsChange() {
-    this._renderNoResult(true);
+  _debounceSearch(filmsFound, mode) {
+    this._mainController.searchMode(filmsFound, mode);
   }
 
   _onSearchDataChange(filmsFound, mode) {
-    this._mainController.searchMode(filmsFound, mode);
+    this._debounce(filmsFound, mode);
   }
 
   _onAppDataChange(actionStatus, update, context, searchMode) {
