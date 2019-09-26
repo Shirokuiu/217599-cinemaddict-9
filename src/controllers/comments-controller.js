@@ -70,7 +70,7 @@ export default class CommentsController {
   _onAddCommentKeysPress(evt) {
     const img = this._comments.getElement().querySelector(`.film-details__add-emoji-label img`);
 
-    if (evt.metaKey && evt.key === `Enter`) {
+    if ((evt.metaKey || evt.ctrlKey) && evt.key === `Enter`) {
       if (evt.target.value === `` && img.alt !== ``) {
         this._comments.getElement().querySelector(`.film-details__error-message--textarea`)
           .classList.remove(`visually-hidden`);
@@ -113,6 +113,7 @@ export default class CommentsController {
     img.alt = `${evt.target.value}`;
     this._comments.getElement().querySelector(`.film-details__error-message--img`)
       .classList.add(`visually-hidden`);
+    this._comments.getElement().querySelector(`.film-details__comment-input`).focus();
   }
 
   _blockComments() {
